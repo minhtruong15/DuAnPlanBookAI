@@ -229,6 +229,10 @@ planbookai/
 git checkout main
 git pull origin main
 ```
+### Nối thư mục máy tính của bạn với kho GitHub DuAnPlanBookAI trên web của bạn:
+```bash
+git remote add origin https://github.com/minhtruong15/DuAnPlanBookAI.git 
+```
 
 ### Bước 2: Tạo nhánh làm việc riêng của mình
 
