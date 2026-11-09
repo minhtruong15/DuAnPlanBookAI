@@ -53,8 +53,50 @@ Mỗi giáo viên được cung cấp một **Workspace cá nhân** để lưu t
   * **Render / AWS:** Triển khai Backend (Node.js) và Cơ sở dữ liệu MySQL.
 
 ---
+## PHẦN 2: QUY TẮC SỐNG CÒN TRÊN GITHUB
 
-## PHẦN 2: KIẾN TRÚC CHUẨN DUY NHẤT CỦA DỰ ÁN (SINGLE STANDARD ARCHITECTURE)
+> [!CAUTION]
+> **Tuyệt đối KHÔNG code và push thẳng lên nhánh `main`.** Toàn bộ thành viên tuân thủ nghiêm ngặt 4 bước sau.
+
+### Bước 1: Đồng bộ code mới nhất mỗi ngày
+
+```bash
+git checkout main
+git pull origin main
+```
+### Nối thư mục máy tính của bạn với kho GitHub DuAnPlanBookAI trên web của bạn:
+```bash
+git remote add origin https://github.com/minhtruong15/DuAnPlanBookAI.git 
+```
+
+### Bước 2: Tạo nhánh làm việc riêng của mình
+
+```bash
+git checkout -b feature/[tên-bạn]-[tên-chức-năng]
+```
+
+Ví dụ:
+
+```bash
+git checkout -b feature/tv1-teacher-lesson-ai
+git checkout -b feature/tv2-admin-dashboard
+git checkout -b feature/tv3-auth-jwt-rbac
+git checkout -b feature/tv4-ocr-exam-grading
+```
+
+### Bước 3: Lưu và đẩy code lên nhánh cá nhân
+
+```bash
+git add .
+git commit -m "feat: Mô tả chi tiết chức năng vừa hoàn thành"
+git push origin feature/[tên-bạn]-[tên-chức-năng]
+```
+
+### Bước 4: Tạo Pull Request (PR)
+
+Lên GitHub của dự án, bấm **Compare & pull request** $\rightarrow$ bấm **Create pull request** để Tech Lead kiểm tra và merge vào nhánh `main`.
+
+## PHẦN 3: KIẾN TRÚC CHUẨN DUY NHẤT CỦA DỰ ÁN (SINGLE STANDARD ARCHITECTURE)
 
 ### 1. Bảng tổng quan các khối thư mục
 
@@ -187,7 +229,7 @@ planbookai/
 
 ---
 
-## PHẦN 3: PHÂN CÔNG NHIỆM VỤ 5 THÀNH VIÊN (ĐỒNG BỘ THEO KIẾN TRÚC CHUẨN)
+## PHẦN 4: PHÂN CÔNG NHIỆM VỤ 5 THÀNH VIÊN (ĐỒNG BỘ THEO KIẾN TRÚC CHUẨN)
 
 ### 1. Thành viên 1 (`@github-tv1`) — Tech Lead & Frontend Developer (Phân hệ Teacher & Auth)
 * **Thư mục `frontend/`:** Khởi tạo dự án React bằng Vite, cấu hình định tuyến `App.jsx`, tầng kết nối `src/services/apiClient.js`, kho lưu trạng thái `AuthContext.jsx` và chốt chặn phân quyền giao diện `ProtectedRoute.jsx`.
@@ -218,45 +260,4 @@ planbookai/
 
 ---
 
-## PHẦN 4: QUY TẮC SỐNG CÒN TRÊN GITHUB
 
-> [!CAUTION]
-> **Tuyệt đối KHÔNG code và push thẳng lên nhánh `main`.** Toàn bộ thành viên tuân thủ nghiêm ngặt 4 bước sau.
-
-### Bước 1: Đồng bộ code mới nhất mỗi ngày
-
-```bash
-git checkout main
-git pull origin main
-```
-### Nối thư mục máy tính của bạn với kho GitHub DuAnPlanBookAI trên web của bạn:
-```bash
-git remote add origin https://github.com/minhtruong15/DuAnPlanBookAI.git 
-```
-
-### Bước 2: Tạo nhánh làm việc riêng của mình
-
-```bash
-git checkout -b feature/[tên-bạn]-[tên-chức-năng]
-```
-
-Ví dụ:
-
-```bash
-git checkout -b feature/tv1-teacher-lesson-ai
-git checkout -b feature/tv2-admin-dashboard
-git checkout -b feature/tv3-auth-jwt-rbac
-git checkout -b feature/tv4-ocr-exam-grading
-```
-
-### Bước 3: Lưu và đẩy code lên nhánh cá nhân
-
-```bash
-git add .
-git commit -m "feat: Mô tả chi tiết chức năng vừa hoàn thành"
-git push origin feature/[tên-bạn]-[tên-chức-năng]
-```
-
-### Bước 4: Tạo Pull Request (PR)
-
-Lên GitHub của dự án, bấm **Compare & pull request** $\rightarrow$ bấm **Create pull request** để Tech Lead kiểm tra và merge vào nhánh `main`.
