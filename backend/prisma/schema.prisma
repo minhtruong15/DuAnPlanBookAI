@@ -1,0 +1,159 @@
+// Khai báo bộ sinh mã Prisma Client cho Node.js
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Khai báo hệ quản trị Cơ sở dữ liệu quan hệ là MySQL
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Định nghĩa 4 Tác nhân (4 Actors) chuẩn của hệ thống
+enum Role {
+  ADMIN
+  MANAGER
+  STAFF
+  TEACHER
+}
+
+// BẢNG 1: Người dùng hệ thống (Admin, Manager, Staff, Teacher)
+model User {
+  id           Int                 @id @default(autoincrement())
+  fullName     String              // Họ và tên
+  email        String              @unique // Email đăng nhập duy nhất
+  passwordHash String              // Mật khẩu đã mã hóa bằng bcrypt
+  role         Role                @default(TEACHER) // Phân quyền 4 Actors
+  schoolName   String?             // Tên trường THPT công tác (dành cho Giáo viên)
+  aiCredits    Int                 @default(50) // Số lượt gọi AI / chấm OCR còn lại
+  isActive     Boolean             @default(true) // Trạng thái hoạt động (Admin khóa/mở)
+  createdAt    DateTime            @default(now())
+
+  // Quan hệ nối sang các bảng khác
+  orders       SubscriptionOrder[]
+  folders      WorkspaceFolder[]
+  lessonPlans  LessonPlan[]
+  questions    Question[]
+  exams        Exam[]
+}
+
+// BẢNG 2: Các gói dịch vụ thuê bao (Do Manager quản lý)
+model Package {
+  id           Int                 @id @default(autoincrement())
+  name         String              // Tên gói (VD: Gói Pro Hóa học Học kỳ)
+  priceVND     Int                 // Giá tiền VNĐ
+  aiCredits    Int                 // Số lượt AI/OCR được cộng khi mua gói
+  durationDays Int                 @default(30) // Thời hạn sử dụng (ngày)
+  isActive     Boolean             @default(true)
+  orders       SubscriptionOrder[]
+}
+
+// BẢNG 3: Đơn hàng đăng ký gói cước của Giáo viên
+model SubscriptionOrder {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  packageId Int
+  amountVND Int      // Số tiền thanh toán
+  status    String   @default("PENDING") // PENDING (Chờ duyệt), PAID (Đã thanh toán), CANCELLED
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  package   Package  @relation(fields: [packageId], references: [id])
+}
+
+// BẢNG 4: Khung chương trình & Cấu trúc giáo án chuẩn (Do Admin cấu hình)
+model CurriculumFramework {
+  id        Int      @id @default(autoincrement())
+  grade     Int      // Khối lớp: 10, 11, 12
+  subject   String   @default("Hóa học")
+  title     String   // Tên chương / chủ đề khung chương trình GDPT 2018
+  structure String   @db.Text // Cấu trúc mẫu Giáo án (VD: 4 hoạt động Công văn 5512)
+  createdAt DateTime @default(now())
+}
+
+// BẢNG 5: Mẫu câu lệnh Prompt AI (Do Staff tạo, Manager phê duyệt)
+model PromptTemplate {
+  id             Int      @id @default(autoincrement())
+  name           String   // Tên mẫu Prompt (VD: Prompt Soạn Giáo án Hóa 12)
+  category       String   // LESSON_PLAN (Giáo án) hoặc EXERCISE (Bài tập)
+  promptContent  String   @db.Text // Nội dung câu lệnh gốc chứa biến {{grade}}, {{topic}}
+  approvalStatus String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt      DateTime @default(now())
+}
+
+// BẢNG 6: Thư mục lưu trữ trong Workspace cá nhân của Giáo viên
+model WorkspaceFolder {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  folderName  String       // Tên thư mục (VD: Giáo án Hóa 10 - Học kỳ 1)
+  createdAt   DateTime     @default(now())
+
+  user        User         @relation(fields: [userId], references: [id])
+  lessonPlans LessonPlan[]
+}
+
+// BẢNG 7: Giáo án & Tài liệu dạy học (Cả Giáo án mẫu của Staff và Giáo án AI của Teacher)
+model LessonPlan {
+  id             Int              @id @default(autoincrement())
+  userId         Int
+  folderId       Int?
+  grade          Int              // Khối lớp: 10, 11, 12
+  topic          String           // Chủ đề bài học Hóa học
+  title          String           // Tiêu đề giáo án / bài tập
+  content        String           @db.LongText // Nội dung chi tiết (Markdown / JSON)
+  isSample       Boolean          @default(false) // true = Giáo án mẫu của Staff
+  approvalStatus String           @default("APPROVED") // PENDING, APPROVED, REJECTED
+  createdAt      DateTime         @default(now())
+
+  user           User             @relation(fields: [userId], references: [id])
+  folder         WorkspaceFolder? @relation(fields: [folderId], references: [id])
+}
+
+// BẢNG 8: Ngân hàng Câu hỏi Hóa học THPT (Lưu câu hỏi của Staff và Teacher)
+model Question {
+  id             Int      @id @default(autoincrement())
+  creatorId      Int
+  grade          Int      // Khối 10, 11, 12
+  topic          String   // Chương / Chủ đề Hóa học
+  difficulty     String   // NHAN_BIET, THONG_HIEU, VAN_DUNG
+  content        String   @db.Text // Nội dung câu hỏi Hóa học
+  optionA        String   // Đáp án A
+  optionB        String   // Đáp án B
+  optionC        String   // Đáp án C
+  optionD        String   // Đáp án D
+  correctAnswer  String   // Đáp án đúng ("A", "B", "C", hoặc "D")
+  explanation    String?  @db.Text // Lời giải / giải thích chi tiết
+  approvalStatus String   @default("APPROVED") // PENDING, APPROVED, REJECTED
+  createdAt      DateTime @default(now())
+
+  creator        User     @relation(fields: [creatorId], references: [id])
+}
+
+// BẢNG 9: Đề thi Trắc nghiệm & Các mã đề đã đảo trộn (101, 102, 103, 104)
+model Exam {
+  id           Int                @id @default(autoincrement())
+  teacherId    Int
+  title        String             // Tên kỳ kiểm tra (VD: Kiểm tra 1 tiết Hóa 12 - Ester)
+  grade        Int                // Khối lớp
+  durationMins Int                @default(45) // Thời gian làm bài (phút)
+  examVersions String             @db.LongText // Chuỗi JSON lưu các mã đề 101, 102 và đáp án từng mã
+  createdAt    DateTime           @default(now())
+
+  teacher      User               @relation(fields: [teacherId], references: [id])
+  ocrResults   OcrGradingResult[]
+}
+
+// BẢNG 10: Kết quả chấm phiếu trả lời trắc nghiệm bằng Gemini Vision OCR
+model OcrGradingResult {
+  id             Int      @id @default(autoincrement())
+  examId         Int
+  studentName    String   // Họ tên học sinh đọc từ phiếu
+  examCode       String   // Mã đề học sinh làm (VD: "101")
+  imageUrl       String   // Đường dẫn ảnh phiếu trả lời lưu trên Supabase Storage
+  studentAnswers String   @db.Text // Chuỗi JSON đáp án học sinh khoanh {"1":"A", "2":"C"...}
+  score          Float    // Điểm số tự động chấm (Thang điểm 10)
+  aiFeedback     String?  @db.Text // Nhận xét chi tiết câu đúng/sai và lời khuyên học tập
+  createdAt      DateTime @default(now())
+
+  exam           Exam     @relation(fields: [examId], references: [id])
+}
