@@ -4,7 +4,7 @@
 
 import React, { useState } from "react";
 // Nhap dich vu goi API Giao vien
-import teacherService from "../../services/teacherService";
+import { teacherService } from "../../services/teacherService";
 
 const LessonPlanAI = () => {
   // State quan ly che do hien thi: 'list' (Danh sach giao an) hoac 'wizard' (Trinh soan thao 4 buoc)
@@ -192,7 +192,7 @@ const LessonPlanAI = () => {
     setIsGeneratingAI(true);
     try {
       // Thu goi Backend API neu dang bat
-      await teacherService.generateLessonPlan({
+      await teacherService.generateLessonPlanAI({
         topic: formData.title,
         gradeLevel: formData.grade,
         durationMinutes: 90,

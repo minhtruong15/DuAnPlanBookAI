@@ -1,331 +1,467 @@
-import React, { useState } from 'react';
-import { CHEMISTRY_TOPICS, DIFFICULTY_LEVELS } from '../../utils/constants';
-import useDebounce from '../../hooks/useDebounce';
-import Button from '../../components/common/Button';
-import Modal from '../../components/common/Modal';
-import { teacherService } from '../../services/teacherService';
+// File: frontend/src/pages/teacher/QuestionBank.jsx
+// Chuc nang: Ngan hang Cau hoi Hoa hoc THPT cua Giao vien + Thong ke 4 Muc do + Sua truc tiep (Inline Edit) & Copy nhanh
+// Nang cap tu QuestionBank.jsx cua PlanbookAI-main, tuan thu Luat 7 (Code sach 100%, khong icon/emoji)
 
-export default function QuestionBank() {
-  // Danh sách câu hỏi Hóa học THPT lưu trữ tập trung
+import React, { useState } from "react";
+
+const QuestionBank = () => {
+  // State bo loc theo Khoi lop, Muc do nhan thuc va Tu khoa
+  const [selectedGrade, setSelectedGrade] = useState("All");
+  const [selectedLevel, setSelectedLevel] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // State luu ID cau hoi dang duoc Sua truc tiep (Inline Editing)
+  const [editingId, setEditingId] = useState(null);
+  const [editDraft, setEditDraft] = useState(null);
+  // State bat/tat form Them cau hoi moi
+  const [showAddForm, setShowAddForm] = useState(false);
+
+  // Danh sach cau hoi Hoa hoc THPT trong Ngan hang cua Giao vien
   const [questions, setQuestions] = useState([
     {
-      id: 1,
-      grade: 10,
-      topic: 'Cấu tạo nguyên tử',
-      difficulty: 'NHAN_BIET',
-      content: 'Hạt mang điện tích dương trong hạt nhân nguyên tử là hạt nào sau đây?',
-      optionA: 'Proton (p)',
-      optionB: 'Neutron (n)',
-      optionC: 'Electron (e)',
-      optionD: 'Phân tử',
-      correctAnswer: 'A',
-      explanation: 'Hạt nhân nguyên tử gồm Proton mang điện dương và Neutron không mang điện.',
+      id: "QB-101",
+      grade: "Khoi 10",
+      topic: "Cau tao nguyen tu",
+      level: "Nhan biet",
+      content: "Hat mang dien tich duong trong hat nhan nguyen tu la:",
+      options: ["Electron", "Proton", "Neutron", "Phan tu"],
+      correct: "B",
+      explanation: "Proton mang dien tich +1, electron mang dien tich -1, neutron khong mang dien.",
     },
     {
-      id: 2,
-      grade: 11,
-      topic: 'Cân bằng hóa học',
-      difficulty: 'THONG_HIEU',
-      content: 'Dung dịch chất nào sau đây làm quỳ tím chuyển sang màu đỏ?',
-      optionA: 'NaOH',
-      optionB: 'H2SO4 loãng',
-      optionC: 'NaCl',
-      optionD: 'K2SO4',
-      correctAnswer: 'B',
-      explanation: 'H2SO4 là acid mạnh, phân li hoàn toàn ra H+ làm quỳ tím hóa đỏ.',
+      id: "QB-102",
+      grade: "Khoi 10",
+      topic: "Bang tuan hoan",
+      level: "Thong hieu",
+      content: "Nguyen to X co Z = 17 (Chlorine). Vi tri cua X trong Bang tuan hoan la:",
+      options: [
+        "Chu ky 3, nhom VIIA",
+        "Chu ky 3, nhom VA",
+        "Chu ky 2, nhom VIIA",
+        "Chu ky 4, nhom IIA",
+      ],
+      correct: "A",
+      explanation: "Cau hinh e cua Cl (Z=17): 1s2 2s2 2p6 3s2 3p5 -> 3 lop e (Chu ky 3), 7e lop ngoai cung (Nhom VIIA).",
     },
     {
-      id: 3,
-      grade: 12,
-      topic: 'Ester - Lipid',
-      difficulty: 'VAN_DUNG',
-      content: 'Thủy phân hoàn toàn 8,8 gam Ethyl acetate (CH3COOC2H5) trong dung dịch NaOH dư đun nóng, thu được bao nhiêu gam muối CH3COONa?',
-      optionA: '8,2 gam',
-      optionB: '4,6 gam',
-      optionC: '9,6 gam',
-      optionD: '12,4 gam',
-      correctAnswer: 'A',
-      explanation: 'n(CH3COOC2H5) = 8,8 / 88 = 0,1 mol -> m(CH3COONa) = 0,1 * 82 = 8,2 gam.',
+      id: "QB-103",
+      grade: "Khoi 11",
+      topic: "Can bang hoa hoc",
+      level: "Van dung",
+      content: "Cho can bang: N2(g) + 3H2(g) <-> 2NH3(g) (Delta H < 0). Can bang chuyen dich theo chieu thuan khi:",
+      options: [
+        "Tang nhiet do va giam ap suat",
+        "Hạ nhiet do va tang ap suat",
+        "Tang nhiet do va tang ap suat",
+        "Them chat xuc tac Fe",
+      ],
+      correct: "B",
+      explanation: "Phan ung toa nhiet (Delta H < 0) va giam so mol khi, nen ha nhiet do va tang ap suat se chuyen dich theo chieu thuan.",
+    },
+    {
+      id: "QB-104",
+      grade: "Khoi 12",
+      topic: "Ester - Lipid",
+      level: "Van dung cao",
+      content: "Thuy phan hoan toan 8,8 gam ethyl acetate trong 200 ml dung dich NaOH 1M, co can thu duoc bao nhieu gam chat ran khan?",
+      options: ["8,2 gam", "12,2 gam", "10,4 gam", "16,4 gam"],
+      correct: "B",
+      explanation: "n(ester) = 0,1 mol; n(NaOH) = 0,2 mol -> NaOH du 0,1 mol. Chat ran gom CH3COONa (0,1 mol = 8,2g) + NaOH du (0,1 mol = 4,0g) = 12,2 gam.",
     },
   ]);
 
-  // Các biến bộ lọc tìm kiếm câu hỏi
-  const [filterGrade, setFilterGrade] = useState('ALL');
-  const [filterDifficulty, setFilterDifficulty] = useState('ALL');
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const debouncedKeyword = useDebounce(searchKeyword, 300);
-
-  // State điều khiển Modal thêm câu hỏi mới
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newQuestion, setNewQuestion] = useState({
-    grade: '12',
-    topic: CHEMISTRY_TOPICS[12][0],
-    difficulty: 'NHAN_BIET',
-    content: '',
-    optionA: '',
-    optionB: '',
-    optionC: '',
-    optionD: '',
-    correctAnswer: 'A',
-    explanation: '',
+  // State form tao cau hoi moi
+  const [newQ, setNewQ] = useState({
+    grade: "Khoi 10",
+    topic: "Lien ket hoa hoc",
+    level: "Nhan biet",
+    content: "",
+    options: ["", "", "", ""],
+    correct: "A",
+    explanation: "",
   });
 
-  // Xử lý thêm câu hỏi mới vào Ngân hàng câu hỏi
-  const handleAddQuestion = async (e) => {
-    e.preventDefault();
-    try {
-      await teacherService.createQuestion(newQuestion);
-    } catch (err) {
-      // Cập nhật trực tiếp trên state khi chạy độc lập
+  // Ham bat dau Sua truc tiep (Inline Edit)
+  const handleStartEdit = (q) => {
+    setEditingId(q.id);
+    setEditDraft({ ...q, options: [...q.options] });
+  };
+
+  // Ham luu cau hoi sau khi Sua truc tiep
+  const handleSaveEdit = () => {
+    setQuestions((prev) =>
+      prev.map((q) => (q.id === editingId ? editDraft : q))
+    );
+    setEditingId(null);
+    setEditDraft(null);
+  };
+
+  // Ham sao chep nhanh noi dung cau hoi vao Clipboard
+  const handleCopyQuestion = (q) => {
+    const text = `${q.content}\nA. ${q.options[0]}\nB. ${q.options[1]}\nC. ${q.options[2]}\nD. ${q.options[3]}\nDap an: ${q.correct}`;
+    navigator.clipboard.writeText(text);
+    alert(`Da sao chep cau hoi [${q.id}] vao Clipboard!`);
+  };
+
+  // Ham them cau hoi moi vao Ngan hang
+  const handleCreateQuestion = () => {
+    if (!newQ.content.trim()) {
+      alert("Vui long nhap noi dung cau hoi Hoa hoc!");
+      return;
     }
     const created = {
-      id: Date.now(),
-      ...newQuestion,
-      grade: Number(newQuestion.grade),
+      ...newQ,
+      id: `QB-${Math.floor(105 + Math.random() * 800)}`,
     };
-    setQuestions([created, ...questions]);
-    setIsModalOpen(false);
+    setQuestions((prev) => [created, ...prev]);
+    setNewQ({
+      grade: "Khoi 10",
+      topic: "Lien ket hoa hoc",
+      level: "Nhan biet",
+      content: "",
+      options: ["", "", "", ""],
+      correct: "A",
+      explanation: "",
+    });
+    setShowAddForm(false);
   };
 
-  // Xử lý xóa câu hỏi khỏi Ngân hàng
-  const handleDeleteQuestion = async (id) => {
-    try {
-      await teacherService.deleteQuestion(id);
-    } catch (err) {
-      // Xóa trực tiếp trên giao diện
-    }
-    setQuestions(questions.filter((q) => q.id !== id));
-  };
-
-  // Lọc danh sách câu hỏi theo Khối lớp, Mức độ và Từ khóa tìm kiếm
+  // Loc danh sach cau hoi
   const filteredQuestions = questions.filter((q) => {
-    const matchGrade = filterGrade === 'ALL' || q.grade === Number(filterGrade);
-    const matchDiff = filterDifficulty === 'ALL' || q.difficulty === filterDifficulty;
-    const matchKeyword =
-      !debouncedKeyword ||
-      q.content.toLowerCase().includes(debouncedKeyword.toLowerCase()) ||
-      q.topic.toLowerCase().includes(debouncedKeyword.toLowerCase());
-    return matchGrade && matchDiff && matchKeyword;
+    const matchGrade = selectedGrade === "All" || q.grade === selectedGrade;
+    const matchLevel = selectedLevel === "All" || q.level === selectedLevel;
+    const matchSearch =
+      q.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      q.topic.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchGrade && matchLevel && matchSearch;
   });
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      {/* Header */}
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-800">Ngân Hàng Câu Hỏi Hóa Học THPT</h2>
+          <h1 className="text-2xl font-bold text-slate-800">
+            Ngan hang Cau hoi Hoa hoc THPT (Question Bank)
+          </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Lưu trữ tập trung, phân loại theo khối lớp, chủ đề, mức độ tư duy và tái sử dụng linh hoạt để tạo đề thi
+            Quan ly kho cau hoi theo 4 muc do nhan thuc, ho tro chinh sua truc tiep (Inline Edit) va sao chep nhanh
           </p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)}>+ Thêm câu hỏi Hóa học</Button>
+        <button
+          onClick={() => setShowAddForm(!showAddForm)}
+          className="px-5 py-2.5 rounded-lg bg-blue-600 text-white font-bold text-xs hover:bg-blue-700"
+        >
+          {showAddForm ? "[Dong Form Them]" : "+ Them Cau hoi Hoa hoc Moi"}
+        </button>
       </div>
 
-      {/* Thanh công cụ tìm kiếm và lọc câu hỏi */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="md:col-span-2">
-          <input
-            type="text"
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-            placeholder="Tìm kiếm theo nội dung câu hỏi, công thức hóa học hoặc chủ đề..."
-            className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm"
-          />
-        </div>
-        <div>
-          <select
-            value={filterGrade}
-            onChange={(e) => setFilterGrade(e.target.value)}
-            className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm bg-white"
-          >
-            <option value="ALL">Tất cả khối lớp (10, 11, 12)</option>
-            <option value="10">Hóa học Lớp 10</option>
-            <option value="11">Hóa học Lớp 11</option>
-            <option value="12">Hóa học Lớp 12</option>
-          </select>
-        </div>
-        <div>
-          <select
-            value={filterDifficulty}
-            onChange={(e) => setFilterDifficulty(e.target.value)}
-            className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm bg-white"
-          >
-            <option value="ALL">Tất cả mức độ tư duy</option>
-            {DIFFICULTY_LEVELS.map((lv) => (
-              <option key={lv.value} value={lv.value}>
-                {lv.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Danh sách câu hỏi Hóa học */}
-      <div className="space-y-4">
-        {filteredQuestions.map((q, idx) => (
-          <div key={q.id} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 bg-indigo-50 text-indigo-700 rounded text-xs font-semibold">
-                  Hóa {q.grade} - {q.topic}
-                </span>
-                <span className="px-2.5 py-0.5 bg-slate-100 text-slate-700 rounded text-xs font-semibold">
-                  Mức độ: {q.difficulty}
-                </span>
-              </div>
-              <Button variant="danger" onClick={() => handleDeleteQuestion(q.id)} className="px-2.5 py-1 text-xs">
-                Xóa
-              </Button>
-            </div>
-
-            <p className="text-sm font-bold text-slate-800">
-              Câu {idx + 1}: {q.content}
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3 text-sm">
-              <div className={`p-2 rounded border ${q.correctAnswer === 'A' ? 'bg-emerald-50 border-emerald-300 font-semibold text-emerald-800' : 'bg-slate-50 border-slate-200'}`}>
-                A. {q.optionA}
-              </div>
-              <div className={`p-2 rounded border ${q.correctAnswer === 'B' ? 'bg-emerald-50 border-emerald-300 font-semibold text-emerald-800' : 'bg-slate-50 border-slate-200'}`}>
-                B. {q.optionB}
-              </div>
-              <div className={`p-2 rounded border ${q.correctAnswer === 'C' ? 'bg-emerald-50 border-emerald-300 font-semibold text-emerald-800' : 'bg-slate-50 border-slate-200'}`}>
-                C. {q.optionC}
-              </div>
-              <div className={`p-2 rounded border ${q.correctAnswer === 'D' ? 'bg-emerald-50 border-emerald-300 font-semibold text-emerald-800' : 'bg-slate-50 border-slate-200'}`}>
-                D. {q.optionD}
-              </div>
-            </div>
-
-            {q.explanation && (
-              <p className="mt-3 text-xs text-slate-500 bg-slate-50 p-2.5 rounded border border-slate-100">
-                Giải thích: {q.explanation}
-              </p>
-            )}
+      {/* 4 The Thong ke So luong theo Muc do Nhan thuc */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Tong Cau hoi", count: questions.length, color: "text-slate-800" },
+          {
+            label: "Muc Nhan biet",
+            count: questions.filter((q) => q.level === "Nhan biet").length,
+            color: "text-emerald-600",
+          },
+          {
+            label: "Muc Thong hieu",
+            count: questions.filter((q) => q.level === "Thong hieu").length,
+            color: "text-blue-600",
+          },
+          {
+            label: "Van dung & VDC",
+            count: questions.filter((q) => q.level.includes("Van dung")).length,
+            color: "text-indigo-600",
+          },
+        ].map((st, idx) => (
+          <div key={idx} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div className="text-xs font-bold text-slate-500 uppercase">{st.label}</div>
+            <div className={`text-2xl font-bold mt-1 ${st.color}`}>{st.count} Cau</div>
           </div>
         ))}
       </div>
 
-      {/* Modal thêm câu hỏi mới */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Thêm câu hỏi Hóa học mới">
-        <form onSubmit={handleAddQuestion} className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+      {/* Form Them Cau hoi Moi */}
+      {showAddForm && (
+        <div className="bg-white p-6 rounded-xl border-2 border-blue-500 shadow-sm space-y-4">
+          <h2 className="text-base font-bold text-slate-800 border-b pb-2">
+            Them Cau hoi Trac nghiem Hoa hoc Moi
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Khối lớp</label>
+              <label className="block text-xs font-bold text-slate-600 mb-1">Khoi lop</label>
               <select
-                value={newQuestion.grade}
-                onChange={(e) =>
-                  setNewQuestion({
-                    ...newQuestion,
-                    grade: e.target.value,
-                    topic: CHEMISTRY_TOPICS[e.target.value][0],
-                  })
-                }
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"
+                value={newQ.grade}
+                onChange={(e) => setNewQ({ ...newQ, grade: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-bold"
               >
-                <option value="10">Lớp 10</option>
-                <option value="11">Lớp 11</option>
-                <option value="12">Lớp 12</option>
+                <option value="Khoi 10">Khoi 10</option>
+                <option value="Khoi 11">Khoi 11</option>
+                <option value="Khoi 12">Khoi 12</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Mức độ tư duy</label>
+              <label className="block text-xs font-bold text-slate-600 mb-1">Chuyen de</label>
+              <input
+                type="text"
+                value={newQ.topic}
+                onChange={(e) => setNewQ({ ...newQ, topic: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-600 mb-1">Muc do Nhan thuc</label>
               <select
-                value={newQuestion.difficulty}
-                onChange={(e) => setNewQuestion({ ...newQuestion, difficulty: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"
+                value={newQ.level}
+                onChange={(e) => setNewQ({ ...newQ, level: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-bold"
               >
-                {DIFFICULTY_LEVELS.map((lv) => (
-                  <option key={lv.value} value={lv.value}>
-                    {lv.label}
-                  </option>
-                ))}
+                <option value="Nhan biet">Nhan biet</option>
+                <option value="Thong hieu">Thong hieu</option>
+                <option value="Van dung">Van dung</option>
+                <option value="Van dung cao">Van dung cao</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-600 mb-1">Dap an Dung</label>
+              <select
+                value={newQ.correct}
+                onChange={(e) => setNewQ({ ...newQ, correct: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-bold"
+              >
+                <option value="A">Dap an A</option>
+                <option value="B">Dap an B</option>
+                <option value="C">Dap an C</option>
+                <option value="D">Dap an D</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Chủ đề Hóa học</label>
-            <select
-              value={newQuestion.topic}
-              onChange={(e) => setNewQuestion({ ...newQuestion, topic: e.target.value })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"
-            >
-              {CHEMISTRY_TOPICS[newQuestion.grade].map((t, i) => (
-                <option key={i} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Nội dung câu hỏi</label>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Noi dung Cau hoi *</label>
             <textarea
-              rows={2}
-              required
-              value={newQuestion.content}
-              onChange={(e) => setNewQuestion({ ...newQuestion, content: e.target.value })}
-              className="w-full p-2.5 border border-slate-300 rounded-lg text-sm"
+              rows="2"
+              value={newQ.content}
+              onChange={(e) => setNewQ({ ...newQ, content: e.target.value })}
+              placeholder="Nhap de bai cau hoi Hoa hoc..."
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              type="text"
-              required
-              placeholder="Đáp án A"
-              value={newQuestion.optionA}
-              onChange={(e) => setNewQuestion({ ...newQuestion, optionA: e.target.value })}
-              className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm"
-            />
-            <input
-              type="text"
-              required
-              placeholder="Đáp án B"
-              value={newQuestion.optionB}
-              onChange={(e) => setNewQuestion({ ...newQuestion, optionB: e.target.value })}
-              className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm"
-            />
-            <input
-              type="text"
-              required
-              placeholder="Đáp án C"
-              value={newQuestion.optionC}
-              onChange={(e) => setNewQuestion({ ...newQuestion, optionC: e.target.value })}
-              className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm"
-            />
-            <input
-              type="text"
-              required
-              placeholder="Đáp án D"
-              value={newQuestion.optionD}
-              onChange={(e) => setNewQuestion({ ...newQuestion, optionD: e.target.value })}
-              className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {["A", "B", "C", "D"].map((char, idx) => (
+              <div key={char} className="flex items-center gap-2">
+                <span className="text-xs font-bold w-6">{char}.</span>
+                <input
+                  type="text"
+                  value={newQ.options[idx]}
+                  onChange={(e) => {
+                    const opts = [...newQ.options];
+                    opts[idx] = e.target.value;
+                    setNewQ({ ...newQ, options: opts });
+                  }}
+                  placeholder={`Nhap phuong an ${char}...`}
+                  className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs"
+                />
+              </div>
+            ))}
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Đáp án đúng</label>
-            <select
-              value={newQuestion.correctAnswer}
-              onChange={(e) => setNewQuestion({ ...newQuestion, correctAnswer: e.target.value })}
-              className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm bg-white"
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={handleCreateQuestion}
+              className="px-5 py-2 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700"
             >
-              <option value="A">Đáp án A</option>
-              <option value="B">Đáp án B</option>
-              <option value="C">Đáp án C</option>
-              <option value="D">Đáp án D</option>
-            </select>
+              Luu vao Ngan hang Cau hoi
+            </button>
           </div>
+        </div>
+      )}
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
-              Hủy
-            </Button>
-            <Button type="submit">Lưu vào Ngân hàng</Button>
-          </div>
-        </form>
-      </Modal>
+      {/* Bo loc Khoi lop, Muc do & Tim kiem */}
+      <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          {["All", "Khoi 10", "Khoi 11", "Khoi 12"].map((gr) => (
+            <button
+              key={gr}
+              onClick={() => setSelectedGrade(gr)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
+                selectedGrade === gr
+                  ? "bg-blue-600 text-white"
+                  : "bg-slate-100 text-slate-600"
+              }`}
+            >
+              {gr === "All" ? "Tat ca Khoi" : gr}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <select
+            value={selectedLevel}
+            onChange={(e) => setSelectedLevel(e.target.value)}
+            className="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold"
+          >
+            <option value="All">Tat ca Muc do</option>
+            <option value="Nhan biet">Nhan biet</option>
+            <option value="Thong hieu">Thong hieu</option>
+            <option value="Van dung">Van dung</option>
+            <option value="Van dung cao">Van dung cao</option>
+          </select>
+          <input
+            type="text"
+            placeholder="Tim noi dung hoac chuyen de..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-3 py-1.5 rounded-lg border border-slate-300 text-xs w-56"
+          />
+        </div>
+      </div>
+
+      {/* Danh sach Cau hoi + Tinh nang Sua truc tiep (Inline Edit) */}
+      <div className="space-y-4">
+        {filteredQuestions.map((q) => {
+          const isEditing = editingId === q.id;
+          return (
+            <div
+              key={q.id}
+              className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-1 rounded bg-slate-100 font-mono text-xs font-bold text-slate-700">
+                    {q.id}
+                  </span>
+                  <span className="px-2.5 py-1 rounded bg-blue-50 text-blue-700 text-xs font-bold">
+                    {q.grade} • {q.topic}
+                  </span>
+                  <span className="px-2.5 py-1 rounded bg-indigo-50 text-indigo-700 text-xs font-bold">
+                    Muc do: {q.level}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {isEditing ? (
+                    <>
+                      <button
+                        onClick={handleSaveEdit}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold"
+                      >
+                        [Luu thay doi]
+                      </button>
+                      <button
+                        onClick={() => setEditingId(null)}
+                        className="px-3 py-1.5 rounded-lg bg-slate-200 text-slate-700 text-xs font-bold"
+                      >
+                        [Huy]
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => handleCopyQuestion(q)}
+                        className="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200"
+                      >
+                        [Sao chep]
+                      </button>
+                      <button
+                        onClick={() => handleStartEdit(q)}
+                        className="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-xs font-bold hover:bg-blue-100"
+                      >
+                        [Sua truc tiep]
+                      </button>
+                      <button
+                        onClick={() =>
+                          setQuestions((prev) => prev.filter((item) => item.id !== q.id))
+                        }
+                        className="px-3 py-1.5 rounded-lg bg-rose-50 text-rose-600 text-xs font-bold hover:bg-rose-100"
+                      >
+                        [Xoa]
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Noi dung cau hoi & 4 Phuong an */}
+              {isEditing ? (
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={editDraft.content}
+                    onChange={(e) =>
+                      setEditDraft({ ...editDraft, content: e.target.value })
+                    }
+                    className="w-full px-3 py-2 rounded-lg border border-blue-400 text-sm font-bold"
+                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {["A", "B", "C", "D"].map((char, idx) => (
+                      <div key={char} className="flex items-center gap-2">
+                        <button
+                          onClick={() =>
+                            setEditDraft({ ...editDraft, correct: char })
+                          }
+                          className={`px-2.5 py-1 rounded text-xs font-bold ${
+                            editDraft.correct === char
+                              ? "bg-emerald-600 text-white"
+                              : "bg-slate-200 text-slate-700"
+                          }`}
+                        >
+                          {char}
+                        </button>
+                        <input
+                          type="text"
+                          value={editDraft.options[idx]}
+                          onChange={(e) => {
+                            const updatedOpts = [...editDraft.options];
+                            updatedOpts[idx] = e.target.value;
+                            setEditDraft({ ...editDraft, options: updatedOpts });
+                          }}
+                          className="w-full px-3 py-1.5 rounded border border-slate-300 text-xs"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="text-sm font-bold text-slate-800">{q.content}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                    {["A", "B", "C", "D"].map((char, idx) => {
+                      const isCorrect = q.correct === char;
+                      return (
+                        <div
+                          key={char}
+                          className={`p-3 rounded-lg border text-xs flex items-center gap-2 ${
+                            isCorrect
+                              ? "bg-emerald-50 border-emerald-400 text-emerald-900 font-bold"
+                              : "bg-slate-50 border-slate-200 text-slate-700"
+                          }`}
+                        >
+                          <span>{char}.</span>
+                          <span>{q.options[idx]}</span>
+                          {isCorrect && (
+                            <span className="ml-auto text-[11px] uppercase text-emerald-700">
+                              [Dap an dung]
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="text-xs text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <strong>Giai thich Hoa hoc:</strong> {q.explanation}
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
-}
+};
+
+export default QuestionBank;
