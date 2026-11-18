@@ -3,8 +3,11 @@ import { authController } from '../controllers/authController.js';
 import { adminController } from '../controllers/adminController.js';
 import { managerController } from '../controllers/managerController.js';
 import { staffController } from '../controllers/staffController.js';
+import { teacherController } from '../controllers/teacherController.js';
 import { authenticateToken } from '../middlewares/authMiddleware.js';
 import { authorizeRoles } from '../middlewares/rbacMiddleware.js';
+import { checkAiQuota } from '../middlewares/quotaMiddleware.js';
+import { uploadOcrImage } from '../middlewares/uploadMiddleware.js';
 
 const router = express.Router();
 
@@ -46,5 +49,19 @@ router.get('/staff/questions', authenticateToken, authorizeRoles('STAFF', 'MANAG
 router.post('/staff/questions', authenticateToken, authorizeRoles('STAFF', 'ADMIN'), staffController.createQuestion);
 router.get('/staff/prompts', authenticateToken, authorizeRoles('STAFF', 'MANAGER', 'ADMIN'), staffController.getPrompts);
 router.post('/staff/prompts', authenticateToken, authorizeRoles('STAFF', 'ADMIN'), staffController.savePrompt);
+
+// 6. Nhánh API Giáo viên Hóa học THPT (/api/teacher/*) - Cho phép Role: TEACHER, ADMIN
+router.get('/teacher/workspace', authenticateToken, authorizeRoles('TEACHER', 'ADMIN'), teacherController.getWorkspace);
+router.post('/teacher/workspace/folders', authenticateToken, authorizeRoles('TEACHER', 'ADMIN'), teacherController.createFolder);
+router.post('/teacher/workspace/digitize-ocr', authenticateToken, authorizeRoles('TEACHER', 'ADMIN'), checkAiQuota, uploadOcrImage.single('documentImage'), teacherController.digitizeDocumentOcr);
+router.post('/teacher/lesson-plans/generate', authenticateToken, authorizeRoles('TEACHER', 'ADMIN'), checkAiQuota, teacherController.generateLessonPlanAI);
+router.post('/teacher/lesson-plans', authenticateToken, authorizeRoles('TEACHER', 'ADMIN'), teacherController.saveLessonPlan);
+router.post('/teacher/exercises/generate', authenticateToken, authorizeRoles('TEACHER', 'ADMIN'), checkAiQuota, teacherController.generateExercisesAI);
+router.get('/teacher/questions', authenticateToken, authorizeRoles('TEACHER', 'ADMIN'), teacherController.getQuestions);
+router.post('/teacher/questions', authenticateToken, authorizeRoles('TEACHER', 'ADMIN'), teacherController.createQuestion);
+router.delete('/teacher/questions/:id', authenticateToken, authorizeRoles('TEACHER', 'ADMIN'), teacherController.deleteQuestion);
+router.post('/teacher/exams/generate', authenticateToken, authorizeRoles('TEACHER', 'ADMIN'), teacherController.generateExamVersions);
+router.post('/teacher/ocr/grade', authenticateToken, authorizeRoles('TEACHER', 'ADMIN'), checkAiQuota, uploadOcrImage.single('answerSheet'), teacherController.gradeAnswerSheetOcr);
+router.get('/teacher/analytics', authenticateToken, authorizeRoles('TEACHER', 'ADMIN'), teacherController.getStudentAnalytics);
 
 export default router;
