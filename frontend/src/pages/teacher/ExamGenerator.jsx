@@ -1,161 +1,132 @@
 // File: frontend/src/pages/teacher/ExamGenerator.jsx
-// Chuc nang: Trinh Thiet ke De thi Hoa hoc Wizard 4 Buoc, Ma tran Nhan thuc, Tron 4 Ma de & Cap phat Ma QR/Link
-// Nang cap tu ExamCreator.jsx cua PlanbookAI-main, tuan thu Luat 7 (Code sach 100%, khong icon/emoji)
+// Chức năng: Thiết kế Đề kiểm tra Hóa học Wizard 4 Bước, Ma trận Nhận thức, Trộn 4 Mã đề & Cấp phát Link/Mã QR
+// Đồng bộ giao diện từ ExamCreator.jsx của PlanbookAI-main, tuân thủ Luật 7 (Code sạch 100%, không icon/emoji)
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 const ExamGenerator = () => {
-  // State quan ly che do hien thi: 'list' (Danh sach de thi) hoac 'wizard' (Wizard 4 buoc)
-  const [viewMode, setViewMode] = useState("list");
-  // State chuyen doi che do hien thi Grid (Luoi) hoac List (Bang)
-  const [layoutType, setLayoutType] = useState("grid");
-  // State loc theo Khoi lop (All, Khoi 10, Khoi 11, Khoi 12) va Tu khoa
-  const [selectedGrade, setSelectedGrade] = useState("All");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [viewMode, setViewMode] = useState('list');
+  const [layoutType, setLayoutType] = useState('grid');
+  const [selectedGrade, setSelectedGrade] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // State buoc hien tai trong Wizard 4 buoc (1 -> 4)
+  // State Wizard 4 Bước & chế độ AI/Thủ công
   const [wizardStep, setWizardStep] = useState(1);
-  // State che do soan cau hoi o Buoc 2: 'ai' (AI sinh tu dong theo ma tran) hoac 'manual' (Thu cong)
-  const [creationMode, setCreationMode] = useState("ai");
+  const [creationMode, setCreationMode] = useState('ai');
+  const [revealPassword, setRevealPassword] = useState(false);
 
-  // Danh sach De thi Hoa hoc hien co
+  // Danh sách Đề kiểm tra hiện có
   const [exams, setExams] = useState([
     {
-      id: "EX-CHEM-101",
-      title: "De Kiem tra Giua Ky 1 - Hoa hoc 10 (Cau tao Nguyen tu & Bang Tuan Hoan)",
-      grade: "Khoi 10",
+      id: 'EX-CHEM-101',
+      title: 'Đề Kiểm tra Giữa Kỳ 1 - Hóa học 10 (Cấu tạo Nguyên tử & Bảng Tuần Hoàn)',
+      grade: 'Lớp 10',
       duration: 45,
       questionCount: 15,
-      examCodes: ["101", "102", "103", "104"],
-      password: "HOA10",
-      status: "Da xuat ban",
+      examCodes: ['101', '102', '103', '104'],
+      password: 'HOA10',
+      status: 'Đã xuất bản',
       attempts: 42,
       avgScore: 7.8,
-      createdAt: "15/11/2026",
     },
     {
-      id: "EX-CHEM-102",
-      title: "De Kiem tra 15 Phut - Hoa hoc 12 (Chuong Ester - Lipid)",
-      grade: "Khoi 12",
+      id: 'EX-CHEM-102',
+      title: 'Đề Kiểm tra 15 Phút - Hóa học 12 (Chương Ester - Lipid)',
+      grade: 'Lớp 12',
       duration: 15,
       questionCount: 10,
-      examCodes: ["101", "202", "303", "404"],
-      password: "",
-      status: "Da xuat ban",
+      examCodes: ['101', '202', '303', '404'],
+      password: '',
+      status: 'Đã xuất bản',
       attempts: 38,
       avgScore: 8.2,
-      createdAt: "17/11/2026",
     },
   ]);
 
-  // State luu cau hinh De thi dang tao trong Wizard 4 buoc
+  // Cấu hình Đề thi đang tạo trong Wizard
   const [examConfig, setExamConfig] = useState({
-    title: "",
-    grade: "Khoi 10",
+    title: '',
+    grade: 'Lớp 10',
     duration: 45,
-    linkedLesson: "Bai 1: Cau tao nguyen tu va Hat nhan",
-    matrix: {
-      nhanBiet: 4,
-      thongHieu: 3,
-      vanDung: 2,
-      vanDungCao: 1,
-    },
-    shuffleMode: "101-104", // '101-104' hoac '101-404'
+    linkedLesson: 'Bài 1: Cấu tạo nguyên tử và Hạt nhân',
+    matrix: { nhanBiet: 4, thongHieu: 3, vanDung: 2, vanDungCao: 1 },
+    shuffleMode: '101-104',
     shuffleQuestions: true,
     shuffleOptions: true,
-    password: "",
+    password: '',
     questions: [
       {
         id: 1,
-        level: "Nhan biet",
-        content: "Hat nhan cua hau het cac nguyen tu duoc cau tao boi cac loai hat nao sau day?",
-        options: [
-          "Electron va proton",
-          "Proton va neutron",
-          "Neutron va electron",
-          "Chi co proton",
-        ],
-        correct: "B",
+        level: 'Nhận biết',
+        content: 'Hạt nhân của hầu hết các nguyên tử được cấu tạo bởi các loại hạt nào sau đây?',
+        options: ['Electron và proton', 'Proton và neutron', 'Neutron và electron', 'Chỉ có proton'],
+        correct: 'B',
       },
       {
         id: 2,
-        level: "Thong hieu",
-        content: "Nguyen tu Sodium (Na) co Z = 11 va so khoi A = 23. So hat neutron trong nguyen tu Na la:",
-        options: ["11", "12", "23", "34"],
-        correct: "B",
-      },
-      {
-        id: 3,
-        level: "Van dung",
-        content: "Cho 5,6 gam sat (Fe) tac dung hoan toan voi dung dich HCl du. The tich khi H2 (dktc) thu duoc la:",
-        options: ["2,24 lit", "2,479 lit", "4,48 lit", "1,12 lit"],
-        correct: "B",
+        level: 'Thông hiểu',
+        content: 'Nguyên tử Sodium (Na) có Z = 11 và số khối A = 23. Số hạt neutron trong nguyên tử Na là:',
+        options: ['11', '12', '23', '34'],
+        correct: 'B',
       },
     ],
   });
 
-  // Tinh tong so cau hoi trong Ma tran nhan thuc
   const totalMatrixQuestions =
     Number(examConfig.matrix.nhanBiet) +
     Number(examConfig.matrix.thongHieu) +
     Number(examConfig.matrix.vanDung) +
     Number(examConfig.matrix.vanDungCao);
 
-  // Ham AI Tu dong sinh bo cau hoi Hoa hoc theo Ma tran nhan thuc o Buoc 2
-  const handleAIGenerateQuestionsByMatrix = () => {
+  // AI Tự động sinh bộ câu hỏi Hóa học theo Ma trận nhận thức
+  const handleAIGenerateQuestions = () => {
     const samplePool = [
       {
-        level: "Nhan biet",
-        content: "Trong nguyen tu, hat mang dien tich am la:",
-        options: ["Proton", "Neutron", "Electron", "Hat nhan"],
-        correct: "C",
+        level: 'Nhận biết',
+        content: 'Trong nguyên tử, hạt mang điện tích âm là:',
+        options: ['Proton', 'Neutron', 'Electron', 'Hạt nhân'],
+        correct: 'C',
       },
       {
-        level: "Nhan biet",
-        content: "Cong thuc phan tu cua Ethyl acetate la:",
-        options: ["C2H4O2", "C4H8O2", "C3H6O2", "C4H6O2"],
-        correct: "B",
+        level: 'Nhận biết',
+        content: 'Công thức phân tử của Ethyl acetate là:',
+        options: ['C2H4O2', 'C4H8O2', 'C3H6O2', 'C4H6O2'],
+        correct: 'B',
       },
       {
-        level: "Thong hieu",
-        content: "Thuy phan ester CH3COOC2H5 trong dung dich NaOH thu duoc muoi va alcohol nao?",
-        options: [
-          "CH3COONa va C2H5OH",
-          "HCOONa va C2H5OH",
-          "CH3COONa va CH3OH",
-          "C2H5COONa va CH3OH",
-        ],
-        correct: "A",
+        level: 'Thông hiểu',
+        content: 'Thủy phân ester CH3COOC2H5 trong dung dịch NaOH thu được muối và alcohol nào?',
+        options: ['CH3COONa và C2H5OH', 'HCOONa và C2H5OH', 'CH3COONa và CH3OH', 'C2H5COONa và CH3OH'],
+        correct: 'A',
       },
       {
-        level: "Van dung",
-        content: "Dot chay hoan toan 0,1 mol mot ester no, don chuc, mach ho thu duoc 0,3 mol CO2. Cong thuc ester la:",
-        options: ["HCOOCH3", "CH3COOCH3", "CH3COOC2H5", "C2H5COOC2H5"],
-        correct: "B",
+        level: 'Vận dụng',
+        content: 'Đốt cháy hoàn toàn 0,1 mol một ester no, đơn chức, mạch hở thu được 0,3 mol CO2. Công thức ester là:',
+        options: ['HCOOCH3', 'CH3COOCH3', 'CH3COOC2H5', 'C2H5COOC2H5'],
+        correct: 'B',
       },
       {
-        level: "Van dung cao",
-        content: "Xa phong hoa hoan toan 17,6 gam ethyl acetate bang 300 ml dung dich NaOH 1M. Khoi luong chat ran khan sau khi co can la:",
-        options: ["16,4 gam", "20,4 gam", "24,6 gam", "18,2 gam"],
-        correct: "B",
+        level: 'Vận dụng cao',
+        content: 'Xà phòng hóa hoàn toàn 17,6 gam ethyl acetate bằng 300 ml dung dịch NaOH 1M. Khối lượng chất rắn khan thu được là:',
+        options: ['16,4 gam', '20,4 gam', '24,6 gam', '18,2 gam'],
+        correct: 'B',
       },
     ];
 
     const generated = [];
     for (let i = 0; i < totalMatrixQuestions; i++) {
-      const template = samplePool[i % samplePool.length];
+      const tpl = samplePool[i % samplePool.length];
       generated.push({
         id: i + 1,
-        level: template.level,
-        content: `[Cau ${i + 1} - ${examConfig.linkedLesson}] ${template.content}`,
-        options: [...template.options],
-        correct: template.correct,
+        level: tpl.level,
+        content: `[Câu ${i + 1} - ${examConfig.linkedLesson}] ${tpl.content}`,
+        options: [...tpl.options],
+        correct: tpl.correct,
       });
     }
     setExamConfig((prev) => ({ ...prev, questions: generated }));
   };
 
-  // Ham them 1 cau hoi thu cong o Buoc 2
   const handleAddManualQuestion = () => {
     setExamConfig((prev) => ({
       ...prev,
@@ -163,19 +134,18 @@ const ExamGenerator = () => {
         ...prev.questions,
         {
           id: prev.questions.length + 1,
-          level: "Nhan biet",
-          content: "Nhap noi dung cau hoi Hoa hoc moi...",
-          options: ["Phuong an A", "Phuong an B", "Phuong an C", "Phuong an D"],
-          correct: "A",
+          level: 'Nhận biết',
+          content: 'Nhập nội dung câu hỏi Hóa học mới...',
+          options: ['Phương án A', 'Phương án B', 'Phương án C', 'Phương án D'],
+          correct: 'A',
         },
       ],
     }));
   };
 
-  // Ham hoan tat Wizard va xuat ban De thi
   const handlePublishExam = () => {
     if (!examConfig.title.trim()) {
-      alert("Vui long nhap Ten ky thi / Kiem tra o Buoc 1!");
+      alert('Vui lòng nhập Tên Đề kiểm tra ở Bước 1!');
       return;
     }
     const newExam = {
@@ -184,175 +154,147 @@ const ExamGenerator = () => {
       grade: examConfig.grade,
       duration: examConfig.duration,
       questionCount: examConfig.questions.length,
-      examCodes:
-        examConfig.shuffleMode === "101-104"
-          ? ["101", "102", "103", "104"]
-          : ["101", "202", "303", "404"],
+      examCodes: examConfig.shuffleMode === '101-104' ? ['101', '102', '103', '104'] : ['101', '202', '303', '404'],
       password: examConfig.password,
-      status: "Da xuat ban",
+      status: 'Đã xuất bản',
       attempts: 0,
       avgScore: 0,
-      createdAt: new Date().toLocaleDateString("vi-VN"),
     };
     setExams((prev) => [newExam, ...prev]);
-    setViewMode("list");
+    setViewMode('list');
     setWizardStep(1);
   };
 
-  // Loc danh sach de thi
   const filteredExams = exams.filter((ex) => {
-    const matchGrade = selectedGrade === "All" || ex.grade === selectedGrade;
+    const matchGrade = selectedGrade === 'All' || ex.grade === selectedGrade;
     const matchSearch = ex.title.toLowerCase().includes(searchTerm.toLowerCase());
     return matchGrade && matchSearch;
   });
 
   // ============================================================================
-  // GIAO DIEN 1: WIZARD 4 BUOC THIET KE & TRON DE THI HOA HOC
+  // GIAO DIỆN 1: WIZARD 4 BƯỚC TẠO ĐỀ KIỂM TRA (ĐỒNG BỘ EXAMCREATOR.JSX)
   // ============================================================================
-  if (viewMode === "wizard") {
+  if (viewMode === 'wizard') {
     return (
-      <div className="space-y-6">
-        {/* Header Wizard */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+        <div className="glass-panel" style={{ padding: '22px 28px', borderRadius: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
           <div>
             <button
-              onClick={() => setViewMode("list")}
-              className="text-sm font-semibold text-blue-600 hover:text-blue-800 mb-1"
+              onClick={() => setViewMode('list')}
+              style={{ background: 'none', border: 'none', color: '#4f46e5', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', padding: 0, marginBottom: 4 }}
             >
-              [Quay lai Danh sach De thi]
+              &lt;- Quay lại Danh sách Đề thi
             </button>
-            <h1 className="text-2xl font-bold text-slate-800">
-              Trinh Thiet ke De thi & Ma tran Nhan thuc (Wizard 4 Buoc)
+            <h1 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>
+              Thiết kế Đề kiểm tra & Ma trận Nhận thức
             </h1>
           </div>
-          <button
-            onClick={handlePublishExam}
-            className="px-5 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700"
-          >
-            Xuat ban De thi & Cap Ma QR
+          <button onClick={handlePublishExam} style={{ padding: '11px 22px', borderRadius: 12, border: 'none', background: '#10b981', color: '#ffffff', fontWeight: 800, cursor: 'pointer' }}>
+            Xuất bản Đề thi & Cấp Mã QR
           </button>
         </div>
 
-        {/* Thanh Stepper 4 Buoc */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-white p-4 rounded-xl border border-slate-200">
+        {/* Stepper 4 Bước */}
+        <div style={{ background: '#ffffff', padding: 16, borderRadius: 20, border: '1px solid #e2e8f0', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
           {[
-            { num: 1, title: "Buoc 1: Thong tin & Ma tran" },
-            { num: 2, title: "Buoc 2: Soan / Sinh Cau hoi" },
-            { num: 3, title: "Buoc 3: Tron Ma de & Bao mat" },
-            { num: 4, title: "Buoc 4: Xuat ban & In De thi" },
-          ].map((st) => (
-            <button
-              key={st.num}
-              onClick={() => setWizardStep(st.num)}
-              className={`p-3 rounded-lg text-left border ${
-                wizardStep === st.num
-                  ? "bg-blue-50 border-blue-600 text-blue-700 font-bold"
-                  : wizardStep > st.num
-                  ? "bg-emerald-50 border-emerald-300 text-emerald-700 font-semibold"
-                  : "bg-slate-50 border-slate-200 text-slate-500"
-              }`}
-            >
-              <div className="text-xs uppercase mb-1">
-                {wizardStep > st.num ? "[Hoan thanh]" : `[Buoc ${st.num}]`}
-              </div>
-              <div className="text-sm">{st.title}</div>
-            </button>
-          ))}
+            { num: 1, title: 'Thông tin & Ma trận' },
+            { num: 2, title: 'Soạn / Sinh Câu hỏi' },
+            { num: 3, title: 'Trộn Mã đề & Bảo mật' },
+            { num: 4, title: 'Xuất bản & Mã QR' },
+          ].map((st) => {
+            const isActive = wizardStep === st.num;
+            const isDone = wizardStep > st.num;
+            return (
+              <button
+                key={st.num}
+                onClick={() => setWizardStep(st.num)}
+                style={{
+                  padding: '12px 16px',
+                  borderRadius: 14,
+                  border: isActive ? '2px solid #4f46e5' : isDone ? '1px solid #6ee7b7' : '1px solid #e2e8f0',
+                  background: isActive ? '#eef2ff' : isDone ? '#ecfdf5' : '#f8fafc',
+                  color: isActive ? '#4338ca' : isDone ? '#047857' : '#64748b',
+                  textAlign: 'left',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: 4 }}>
+                  {isDone ? `Bước ${st.num} (Hoàn tất)` : `Bước ${st.num}`}
+                </div>
+                <div style={{ fontSize: '0.92rem' }}>{st.title}</div>
+              </button>
+            );
+          })}
         </div>
 
-        {/* BUOC 1: THONG TIN KY THI & MA TRAN NHAN THUC */}
+        {/* BƯỚC 1: THÔNG TIN & MA TRẬN */}
         {wizardStep === 1 && (
-          <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-6">
-            <h2 className="text-lg font-bold text-slate-800 border-b pb-3">
-              1. Thiet lap Thong tin & Ma tran Nhan thuc Hoa hoc
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div style={{ background: '#ffffff', padding: 28, borderRadius: 20, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <h2 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0 }}>1. Thiết lập Thông tin & Ma trận Nhận thức</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Ten De Kiem tra / Ky thi *
-                </label>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: 6 }}>Tên Kỳ thi / Bài kiểm tra *</label>
                 <input
                   type="text"
                   value={examConfig.title}
                   onChange={(e) => setExamConfig({ ...examConfig, title: e.target.value })}
-                  placeholder="VD: Kiem tra 45 phut Chuong 1 - Hoa 10"
-                  className="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm"
+                  placeholder="VD: Kiểm tra 45 phút Chương 1 - Hóa 10"
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #cbd5e1' }}
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Khoi lop
-                </label>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: 6 }}>Khối lớp</label>
                 <select
                   value={examConfig.grade}
                   onChange={(e) => setExamConfig({ ...examConfig, grade: e.target.value })}
-                  className="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm"
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #cbd5e1' }}
                 >
-                  <option value="Khoi 10">Khoi 10</option>
-                  <option value="Khoi 11">Khoi 11</option>
-                  <option value="Khoi 12">Khoi 12</option>
+                  <option value="Lớp 10">Lớp 10</option>
+                  <option value="Lớp 11">Lớp 11</option>
+                  <option value="Lớp 12">Lớp 12</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Thoi gian lam bai (Phut)
-                </label>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: 6 }}>Thời gian làm bài (Phút)</label>
                 <input
                   type="number"
                   value={examConfig.duration}
-                  onChange={(e) =>
-                    setExamConfig({ ...examConfig, duration: Number(e.target.value) })
-                  }
-                  className="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm"
+                  onChange={(e) => setExamConfig({ ...examConfig, duration: Number(e.target.value) })}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #cbd5e1' }}
                 />
               </div>
             </div>
 
-            {/* Lien ket voi Giao an da tao */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                Lien ket voi Ke hoach Bai day (Giao an AI da soan)
-              </label>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: 6 }}>Liên kết với Giáo án đã soạn</label>
               <select
                 value={examConfig.linkedLesson}
-                onChange={(e) =>
-                  setExamConfig({ ...examConfig, linkedLesson: e.target.value })
-                }
-                className="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm"
+                onChange={(e) => setExamConfig({ ...examConfig, linkedLesson: e.target.value })}
+                style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #cbd5e1' }}
               >
-                <option value="Bai 1: Cau tao nguyen tu va Hat nhan">
-                  Bai 1: Cau tao nguyen tu va Hat nhan (Khoi 10)
-                </option>
-                <option value="Bai 5: Ester - Lipid va Ung dung">
-                  Bai 5: Ester - Lipid va Ung dung (Khoi 12)
-                </option>
-                <option value="Bai: Can bang Hoa hoc va Nguyen ly Le Chatelier">
-                  Bai: Can bang Hoa hoc va Nguyen ly Le Chatelier (Khoi 11)
-                </option>
+                <option value="Bài 1: Cấu tạo nguyên tử và Hạt nhân">Bài 1: Cấu tạo nguyên tử và Hạt nhân (Lớp 10)</option>
+                <option value="Bài 5: Ester - Lipid và Ứng dụng">Bài 5: Ester - Lipid và Ứng dụng (Lớp 12)</option>
+                <option value="Cân bằng Hóa học và Nguyên lý Le Chatelier">Cân bằng Hóa học và Nguyên lý Le Chatelier (Lớp 11)</option>
               </select>
             </div>
 
-            {/* Ma tran 4 Muc do Nhan thuc */}
-            <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-slate-800 uppercase">
-                  Cau hinh Ma tran Nhan thuc (4 Muc do)
-                </h3>
-                <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-bold">
-                  Tong so cau theo Ma tran: {totalMatrixQuestions} cau
+            <div style={{ background: '#f8fafc', padding: 20, borderRadius: 16, border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <span style={{ fontWeight: 800, fontSize: '0.92rem', color: '#1e293b' }}>Ma trận 4 Mức độ Nhận thức</span>
+                <span style={{ background: '#e0e7ff', color: '#4338ca', padding: '4px 12px', borderRadius: 16, fontSize: '0.8rem', fontWeight: 800 }}>
+                  Tổng: {totalMatrixQuestions} câu hỏi
                 </span>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
                 {[
-                  { key: "nhanBiet", label: "Nhan biet (40%)" },
-                  { key: "thongHieu", label: "Thong hieu (30%)" },
-                  { key: "vanDung", label: "Van dung (20%)" },
-                  { key: "vanDungCao", label: "Van dung cao (10%)" },
+                  { key: 'nhanBiet', label: 'Nhận biết (40%)' },
+                  { key: 'thongHieu', label: 'Thông hiểu (30%)' },
+                  { key: 'vanDung', label: 'Vận dụng (20%)' },
+                  { key: 'vanDungCao', label: 'Vận dụng cao (10%)' },
                 ].map((lv) => (
-                  <div key={lv.key} className="bg-white p-3 rounded-lg border border-slate-200">
-                    <label className="block text-xs font-bold text-slate-600 mb-1">
-                      {lv.label}
-                    </label>
+                  <div key={lv.key} style={{ background: '#ffffff', padding: 12, borderRadius: 12, border: '1px solid #e2e8f0' }}>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#64748b', marginBottom: 6 }}>{lv.label}</label>
                     <input
                       type="number"
                       min="0"
@@ -360,13 +302,10 @@ const ExamGenerator = () => {
                       onChange={(e) =>
                         setExamConfig({
                           ...examConfig,
-                          matrix: {
-                            ...examConfig.matrix,
-                            [lv.key]: Number(e.target.value),
-                          },
+                          matrix: { ...examConfig.matrix, [lv.key]: Number(e.target.value) },
                         })
                       }
-                      className="w-full px-3 py-1.5 rounded border border-slate-300 text-sm font-bold"
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #cbd5e1', fontWeight: 800 }}
                     />
                   </div>
                 ))}
@@ -375,282 +314,214 @@ const ExamGenerator = () => {
           </div>
         )}
 
-        {/* BUOC 2: CHE DO AI TRO LY SINH CAU HOI HOAC SOAN THU CONG */}
+        {/* BƯỚC 2: SOẠN / SINH CÂU HỎI */}
         {wizardStep === 2 && (
-          <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4">
-              <div className="flex items-center gap-2">
+          <div style={{ background: '#ffffff', padding: 28, borderRadius: 20, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 18 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 14 }}>
+              <div style={{ display: 'flex', gap: 8 }}>
                 <button
-                  onClick={() => setCreationMode("ai")}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold ${
-                    creationMode === "ai"
-                      ? "bg-indigo-600 text-white"
-                      : "bg-slate-100 text-slate-600"
-                  }`}
+                  onClick={() => setCreationMode('ai')}
+                  style={{
+                    padding: '9px 16px',
+                    borderRadius: 10,
+                    border: 'none',
+                    background: creationMode === 'ai' ? '#4f46e5' : '#f1f5f9',
+                    color: creationMode === 'ai' ? '#ffffff' : '#475569',
+                    fontWeight: 700,
+                    fontSize: '0.84rem',
+                    cursor: 'pointer',
+                  }}
                 >
-                  Che do 1: AI Tro ly Sinh theo Ma tran
+                  Chế độ AI Trợ lý
                 </button>
                 <button
-                  onClick={() => setCreationMode("manual")}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold ${
-                    creationMode === "manual"
-                      ? "bg-blue-600 text-white"
-                      : "bg-slate-100 text-slate-600"
-                  }`}
+                  onClick={() => setCreationMode('manual')}
+                  style={{
+                    padding: '9px 16px',
+                    borderRadius: 10,
+                    border: 'none',
+                    background: creationMode === 'manual' ? '#4f46e5' : '#f1f5f9',
+                    color: creationMode === 'manual' ? '#ffffff' : '#475569',
+                    fontWeight: 700,
+                    fontSize: '0.84rem',
+                    cursor: 'pointer',
+                  }}
                 >
-                  Che do 2: Them / Chinh sua Thu cong
+                  Chế độ Thủ công
                 </button>
               </div>
-
-              {creationMode === "ai" ? (
-                <button
-                  onClick={handleAIGenerateQuestionsByMatrix}
-                  className="px-4 py-2 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700"
-                >
-                  [AI Sinh tu dong {totalMatrixQuestions} Cau hoi theo Ma tran]
+              {creationMode === 'ai' ? (
+                <button onClick={handleAIGenerateQuestions} style={{ padding: '9px 18px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#ffffff', fontWeight: 700, cursor: 'pointer' }}>
+                  AI Sinh tự động {totalMatrixQuestions} Câu hỏi theo Ma trận
                 </button>
               ) : (
-                <button
-                  onClick={handleAddManualQuestion}
-                  className="px-4 py-2 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700"
-                >
-                  + Them 1 Cau hoi Thu cong
+                <button onClick={handleAddManualQuestion} className="btn-primary">
+                  + Thêm Câu hỏi Thủ công
                 </button>
               )}
             </div>
 
-            {/* Danh sach cau hoi trong de thi */}
-            <div className="space-y-4">
-              {examConfig.questions.map((q, idx) => (
-                <div
-                  key={q.id}
-                  className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold px-2.5 py-1 rounded bg-blue-100 text-blue-800">
-                      Cau {idx + 1} - Muc do: {q.level}
-                    </span>
-                    <span className="text-xs font-bold text-emerald-700">
-                      Dap an dung: {q.correct}
-                    </span>
-                  </div>
-                  <input
-                    type="text"
-                    value={q.content}
-                    onChange={(e) => {
-                      const updated = [...examConfig.questions];
-                      updated[idx].content = e.target.value;
-                      setExamConfig({ ...examConfig, questions: updated });
-                    }}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm font-medium"
-                  />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {["A", "B", "C", "D"].map((letter, optIdx) => (
-                      <div key={letter} className="flex items-center gap-2">
-                        <button
-                          onClick={() => {
-                            const updated = [...examConfig.questions];
-                            updated[idx].correct = letter;
-                            setExamConfig({ ...examConfig, questions: updated });
-                          }}
-                          className={`px-2.5 py-1.5 rounded text-xs font-bold ${
-                            q.correct === letter
-                              ? "bg-emerald-600 text-white"
-                              : "bg-slate-200 text-slate-700"
-                          }`}
-                        >
-                          {letter}
-                        </button>
-                        <input
-                          type="text"
-                          value={q.options[optIdx]}
-                          onChange={(e) => {
-                            const updated = [...examConfig.questions];
-                            updated[idx].options[optIdx] = e.target.value;
-                            setExamConfig({ ...examConfig, questions: updated });
-                          }}
-                          className="w-full px-3 py-1.5 rounded border border-slate-300 bg-white text-xs"
-                        />
-                      </div>
-                    ))}
-                  </div>
+            {examConfig.questions.map((q, idx) => (
+              <div key={q.id} style={{ background: '#f8fafc', padding: 18, borderRadius: 16, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 800 }}>
+                  <span style={{ color: '#4338ca' }}>Câu {idx + 1} • Mức độ: {q.level}</span>
+                  <span style={{ color: '#059669' }}>Đáp án đúng: {q.correct}</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* BUOC 3: TRON 4 MA DE & THIET LAP MAT KHAU BAO VE */}
-        {wizardStep === 3 && (
-          <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-6">
-            <h2 className="text-lg font-bold text-slate-800 border-b pb-3">
-              3. Cau hinh Tron 4 Ma de & Bao mat Ky thi
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
-                <h3 className="text-sm font-bold text-slate-800">
-                  Quy tac Sinh 4 Ma de Tu dong
-                </h3>
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="radio"
-                      name="shuffleMode"
-                      checked={examConfig.shuffleMode === "101-104"}
-                      onChange={() =>
-                        setExamConfig({ ...examConfig, shuffleMode: "101-104" })
-                      }
-                    />
-                    <span>Bo ma de lien tiep: <strong>101, 102, 103, 104</strong></span>
-                  </label>
-                  <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="radio"
-                      name="shuffleMode"
-                      checked={examConfig.shuffleMode === "101-404"}
-                      onChange={() =>
-                        setExamConfig({ ...examConfig, shuffleMode: "101-404" })
-                      }
-                    />
-                    <span>Bo ma de phan biet: <strong>101, 202, 303, 404</strong></span>
-                  </label>
-                </div>
-
-                <div className="space-y-2 pt-2 border-t border-slate-200">
-                  <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={examConfig.shuffleQuestions}
-                      onChange={(e) =>
-                        setExamConfig({
-                          ...examConfig,
-                          shuffleQuestions: e.target.checked,
-                        })
-                      }
-                    />
-                    <span>Dao thu tu cac cau hoi giua cac ma de</span>
-                  </label>
-                  <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={examConfig.shuffleOptions}
-                      onChange={(e) =>
-                        setExamConfig({
-                          ...examConfig,
-                          shuffleOptions: e.target.checked,
-                        })
-                      }
-                    />
-                    <span>Dao thu tu dap an A, B, C, D trong tung cau</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
-                <h3 className="text-sm font-bold text-slate-800">
-                  Mat khau Bao ve De thi (Tuy chon)
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Dat mat khau de kiem soat thoi diem hoc sinh duoc phep mo de thi hoac tai phieu tra loi.
-                </p>
                 <input
                   type="text"
-                  value={examConfig.password}
-                  onChange={(e) =>
-                    setExamConfig({ ...examConfig, password: e.target.value })
-                  }
-                  placeholder="De trong neu khong dat mat khau (VD: HOA10A1)"
-                  className="w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-sm font-bold"
+                  value={q.content}
+                  onChange={(e) => {
+                    const updated = [...examConfig.questions];
+                    updated[idx].content = e.target.value;
+                    setExamConfig({ ...examConfig, questions: updated });
+                  }}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #cbd5e1', background: '#ffffff', fontWeight: 600 }}
                 />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8 }}>
+                  {['A', 'B', 'C', 'D'].map((letter, optIdx) => (
+                    <div key={letter} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <button
+                        onClick={() => {
+                          const updated = [...examConfig.questions];
+                          updated[idx].correct = letter;
+                          setExamConfig({ ...examConfig, questions: updated });
+                        }}
+                        style={{
+                          padding: '6px 10px',
+                          borderRadius: 8,
+                          border: 'none',
+                          background: q.correct === letter ? '#10b981' : '#e2e8f0',
+                          color: q.correct === letter ? '#ffffff' : '#334155',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {letter}
+                      </button>
+                      <input
+                        type="text"
+                        value={q.options[optIdx]}
+                        onChange={(e) => {
+                          const updated = [...examConfig.questions];
+                          updated[idx].options[optIdx] = e.target.value;
+                          setExamConfig({ ...examConfig, questions: updated });
+                        }}
+                        style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1px solid #cbd5e1', background: '#ffffff', fontSize: '0.85rem' }}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         )}
 
-        {/* BUOC 4: XEM TRUOC, CAP PHAT LINK / MA QR & IN PHIEU TRA LOI OCR */}
-        {wizardStep === 4 && (
-          <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4">
-              <div>
-                <span className="text-xs font-bold uppercase px-2.5 py-1 rounded bg-emerald-100 text-emerald-800">
-                  San sang Xuat ban
-                </span>
-                <h2 className="text-xl font-bold text-slate-900 mt-1">
-                  {examConfig.title || "De Kiem tra Hoa hoc THPT"}
-                </h2>
-                <p className="text-xs text-slate-500">
-                  {examConfig.grade} | Thoi gian: {examConfig.duration} phut | Tong so:{" "}
-                  {examConfig.questions.length} cau hoi | 4 Ma de:{" "}
-                  {examConfig.shuffleMode === "101-104"
-                    ? "101, 102, 103, 104"
-                    : "101, 202, 303, 404"}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
+        {/* BƯỚC 3: TRỘN MÃ ĐỀ & MẬT KHẨU */}
+        {wizardStep === 3 && (
+          <div style={{ background: '#ffffff', padding: 28, borderRadius: 20, border: '1px solid #e2e8f0', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+            <div style={{ background: '#f8fafc', padding: 20, borderRadius: 16, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800 }}>Quy tắc Sinh 4 Mã đề Tự động</h3>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.9rem' }}>
+                <input type="radio" checked={examConfig.shuffleMode === '101-104'} onChange={() => setExamConfig({ ...examConfig, shuffleMode: '101-104' })} />
+                Bộ mã đề liên tiếp: <b>101, 102, 103, 104</b>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.9rem' }}>
+                <input type="radio" checked={examConfig.shuffleMode === '101-404'} onChange={() => setExamConfig({ ...examConfig, shuffleMode: '101-404' })} />
+                Bộ mã đề phân biệt: <b>101, 202, 303, 404</b>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.9rem', paddingTop: 10, borderTop: '1px solid #e2e8f0' }}>
+                <input type="checkbox" checked={examConfig.shuffleQuestions} onChange={(e) => setExamConfig({ ...examConfig, shuffleQuestions: e.target.checked })} />
+                Đảo thứ tự câu hỏi giữa các mã đề
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.9rem' }}>
+                <input type="checkbox" checked={examConfig.shuffleOptions} onChange={(e) => setExamConfig({ ...examConfig, shuffleOptions: e.target.checked })} />
+                Đảo thứ tự đáp án A, B, C, D trong từng câu
+              </label>
+            </div>
+
+            <div style={{ background: '#f8fafc', padding: 20, borderRadius: 16, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800 }}>Mật khẩu Bảo vệ Đề thi (Tùy chọn)</h3>
+              <p style={{ margin: 0, fontSize: '0.84rem', color: '#64748b' }}>
+                Thiết lập mật khẩu kiểm soát thời điểm mở đề thi hoặc tải phiếu trả lời.
+              </p>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={revealPassword ? 'text' : 'password'}
+                  value={examConfig.password}
+                  onChange={(e) => setExamConfig({ ...examConfig, password: e.target.value })}
+                  placeholder="Để trống nếu không đặt mật khẩu (VD: HOA10A1)"
+                  style={{ width: '100%', padding: '10px 60px 10px 14px', borderRadius: 10, border: '1px solid #cbd5e1', background: '#ffffff', fontWeight: 700 }}
+                />
                 <button
-                  onClick={() => window.print()}
-                  className="px-4 py-2 rounded-lg bg-slate-800 text-white text-xs font-bold hover:bg-slate-900"
+                  type="button"
+                  onClick={() => setRevealPassword(!revealPassword)}
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#4f46e5', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }}
                 >
-                  [In 4 Ma de + Phieu To Dap an OCR]
+                  {revealPassword ? 'Ẩn' : 'Hiện'}
                 </button>
               </div>
             </div>
+          </div>
+        )}
 
-            {/* Khu vuc Ma Chia se & Link Truc tuyen */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-xl bg-blue-50 border border-blue-200">
-              <div className="md:col-span-2 space-y-2">
-                <h3 className="text-sm font-bold text-blue-900">
-                  Cong Cap phat De thi & Dong bo May cham OCR
-                </h3>
-                <p className="text-xs text-blue-700">
-                  Ma De thi nay da duoc dong bo sang phan he Cham thi OCR (OcrGrading). Giao vien co the in Phieu tra loi trac nghiem theo 4 ma de de phat cho hoc sinh.
+        {/* BƯỚC 4: XUẤT BẢN & CẤP MÃ QR */}
+        {wizardStep === 4 && (
+          <div style={{ background: '#ffffff', padding: 28, borderRadius: 20, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14, borderBottom: '1px solid #f1f5f9', paddingBottom: 14 }}>
+              <div>
+                <span style={{ background: '#dcfce7', color: '#166534', padding: '4px 12px', borderRadius: 12, fontSize: '0.75rem', fontWeight: 800 }}>SẴN SÀNG XUẤT BẢN</span>
+                <h2 style={{ fontSize: '1.35rem', fontWeight: 900, margin: '8px 0 4px 0' }}>{examConfig.title || 'Đề Kiểm tra Hóa học THPT'}</h2>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>
+                  {examConfig.grade} | {examConfig.duration} phút | {examConfig.questions.length} câu hỏi | Mã đề: {examConfig.shuffleMode === '101-104' ? '101, 102, 103, 104' : '101, 202, 303, 404'}
                 </p>
-                <div className="flex items-center gap-2 pt-1">
-                  <input
-                    type="text"
-                    readOnly
-                    value={`https://planbookai.edu.vn/exam/${examConfig.grade.replace(" ", "")}-${examConfig.shuffleMode}`}
-                    className="w-full px-3 py-1.5 rounded border border-blue-300 bg-white text-xs font-mono"
-                  />
-                </div>
               </div>
-              <div className="bg-white p-4 rounded-lg border border-blue-200 flex flex-col items-center justify-center text-center">
-                <div className="w-20 h-20 border-2 border-dashed border-slate-400 rounded flex items-center justify-center text-xs font-mono font-bold text-slate-600">
-                  [MA QR DE THI]
+              <button onClick={() => window.print()} style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: '#0f172a', color: '#ffffff', fontWeight: 700, cursor: 'pointer' }}>
+                In 4 Mã đề + Phiếu Tô Đáp án OCR
+              </button>
+            </div>
+
+            <div style={{ background: '#eef2ff', padding: 20, borderRadius: 16, border: '1px solid #c7d2fe', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 20 }}>
+              <div style={{ flex: 1, minWidth: 260 }}>
+                <h3 style={{ margin: '0 0 6px 0', color: '#312e81', fontWeight: 800 }}>Cổng Cấp phát Đề thi & Đồng bộ Máy chấm OCR</h3>
+                <p style={{ margin: '0 0 12px 0', fontSize: '0.85rem', color: '#4338ca' }}>
+                  Bộ 4 Mã đề này đã tự động đồng bộ sang phân hệ Chấm thi AI OCR.
+                </p>
+                <input
+                  type="text"
+                  readOnly
+                  value={`https://planbookai.edu.vn/exam/${examConfig.grade.replace(' ', '')}-${examConfig.shuffleMode}`}
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1px solid #a5b4fc', background: '#ffffff', fontSize: '0.82rem', fontFamily: 'monospace' }}
+                />
+              </div>
+              <div style={{ background: '#ffffff', padding: 16, borderRadius: 14, border: '1px solid #c7d2fe', textAlign: 'center', minWidth: 140 }}>
+                <div style={{ width: 84, height: 84, border: '2px dashed #6366f1', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto', fontWeight: 800, fontSize: '0.75rem', color: '#4338ca' }}>
+                  MÃ QR ĐỀ THI
                 </div>
-                <span className="text-xs font-bold text-slate-600 mt-2">
-                  Mat khau: {examConfig.password || "Khong co"}
-                </span>
+                <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#312e81', marginTop: 8 }}>
+                  Mật khẩu: {examConfig.password || 'Không có'}
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Thanh dieu huong Buoc Truoc / Tiep theo */}
-        <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200">
+        {/* Điều hướng Bước */}
+        <div style={{ background: '#ffffff', padding: '16px 24px', borderRadius: 16, border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <button
             disabled={wizardStep === 1}
             onClick={() => setWizardStep((p) => p - 1)}
-            className="px-5 py-2 rounded-lg border border-slate-300 text-sm font-semibold disabled:opacity-40"
+            style={{ padding: '10px 20px', borderRadius: 10, border: '1px solid #cbd5e1', background: '#ffffff', fontWeight: 700, opacity: wizardStep === 1 ? 0.5 : 1, cursor: 'pointer' }}
           >
-            Buoc truoc
+            Bước trước
           </button>
-          <span className="text-xs font-bold text-slate-500">
-            Buoc {wizardStep} / 4
-          </span>
+          <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#64748b' }}>Bước {wizardStep} / 4</span>
           {wizardStep < 4 ? (
-            <button
-              onClick={() => setWizardStep((p) => p + 1)}
-              className="px-5 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold"
-            >
-              Buoc tiep theo
+            <button onClick={() => setWizardStep((p) => p + 1)} className="btn-primary">
+              Bước tiếp theo
             </button>
           ) : (
-            <button
-              onClick={handlePublishExam}
-              className="px-6 py-2 rounded-lg bg-emerald-600 text-white text-sm font-bold"
-            >
-              Hoan tat & Luu De thi
+            <button onClick={handlePublishExam} style={{ padding: '10px 22px', borderRadius: 10, border: 'none', background: '#10b981', color: '#ffffff', fontWeight: 800, cursor: 'pointer' }}>
+              Hoàn tất & Lưu Đề thi
             </button>
           )}
         </div>
@@ -659,137 +530,119 @@ const ExamGenerator = () => {
   }
 
   // ============================================================================
-  // GIAO DIEN 2: DANH SACH DE THI + 4 THE KPI + GRID/LIST TOGGLE
+  // GIAO DIỆN 2: DANH SÁCH ĐỀ KIỂM TRA + 4 THẺ THỐNG KÊ GLASS-PANEL
   // ============================================================================
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+      <div className="glass-panel" style={{ padding: '24px 28px', borderRadius: 20, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">
-            Thiet ke & Tron De thi Hoa hoc THPT
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>
+            Thiết kế & Trộn Đề kiểm tra Hóa học THPT
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Tao de thi tu Ma tran nhan thuc, tron 4 ma de tu dong va dong bo dap an sang he thong cham OCR
+          <p style={{ color: '#64748b', margin: '6px 0 0 0', fontSize: '0.95rem' }}>
+            Tạo đề thi từ Ma trận nhận thức, trộn 4 mã đề tự động và đồng bộ đáp án sang hệ thống chấm OCR.
           </p>
         </div>
-        <button
-          onClick={() => setViewMode("wizard")}
-          className="px-5 py-2.5 rounded-lg bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700"
-        >
-          + Thiet ke De thi Moi (Wizard 4 Buoc)
+        <button onClick={() => setViewMode('wizard')} className="btn-primary" style={{ padding: '12px 22px', borderRadius: 12 }}>
+          + Thiết kế Đề thi Mới (Wizard 4 Bước)
         </button>
       </div>
 
-      {/* 4 The KPI Thong ke */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 4 Thẻ KPI */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 16 }}>
         {[
-          { label: "Tong De thi Hoa hoc", value: `${exams.length} Bo de`, sub: "4 Ma de / Bo" },
-          { label: "Kho Cau hoi Kha dung", value: "240 Cau", sub: "Chuan Chuong trinh 2018" },
-          { label: "Tong Luot Cham bai", value: "80 Bai", sub: "Dong bo tu OCR" },
-          { label: "Diem Trung binh Khoi", value: "8.0 / 10", sub: "Ty le Dat: 92%" },
+          { label: 'Tổng Đề thi Hóa học', value: `${exams.length} Bộ đề`, sub: '4 Mã đề / Bộ' },
+          { label: 'Kho Câu hỏi Khả dụng', value: '240 Câu', sub: 'Chuẩn GDPT 2018' },
+          { label: 'Tổng Lượt Chấm bài', value: '80 Bài', sub: 'Đồng bộ từ OCR' },
+          { label: 'Điểm Trung bình Khối', value: '8.0 / 10', sub: 'Tỷ lệ Đạt: 92%' },
         ].map((kpi, i) => (
-          <div key={i} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-            <div className="text-xs font-bold text-slate-500 uppercase">{kpi.label}</div>
-            <div className="text-2xl font-bold text-slate-800 mt-1">{kpi.value}</div>
-            <div className="text-xs text-emerald-600 font-semibold mt-1">{kpi.sub}</div>
+          <div key={i} className="glass-panel" style={{ padding: 20, borderRadius: 20 }}>
+            <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>{kpi.label}</div>
+            <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#0f172a', marginTop: 4 }}>{kpi.value}</div>
+            <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#10b981', marginTop: 4 }}>{kpi.sub}</div>
           </div>
         ))}
       </div>
 
-      {/* Thanh Cong cu Tim kiem, Loc Khoi lop va Chuyen doi Grid/List */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200">
-        <div className="flex flex-wrap items-center gap-2">
-          {["All", "Khoi 10", "Khoi 11", "Khoi 12"].map((gr) => (
+      {/* Thanh Lọc Khối lớp + Tìm kiếm + Chuyển đổi Lưới/Bảng */}
+      <div style={{ background: '#ffffff', padding: 16, borderRadius: 20, border: '1px solid #e2e8f0', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 14 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {['All', 'Lớp 10', 'Lớp 11', 'Lớp 12'].map((gr) => (
             <button
               key={gr}
               onClick={() => setSelectedGrade(gr)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold ${
-                selectedGrade === gr
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
+              style={{
+                padding: '8px 16px',
+                borderRadius: 10,
+                border: 'none',
+                background: selectedGrade === gr ? '#4f46e5' : '#f1f5f9',
+                color: selectedGrade === gr ? '#ffffff' : '#475569',
+                fontWeight: 700,
+                fontSize: '0.84rem',
+                cursor: 'pointer',
+              }}
             >
-              {gr === "All" ? "Tat ca Khoi" : gr}
+              {gr === 'All' ? 'Tất cả Khối' : gr}
             </button>
           ))}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <input
             type="text"
-            placeholder="Tim kiem de thi..."
+            placeholder="Tìm kiếm đề thi..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-3 py-1.5 rounded-lg border border-slate-300 text-sm w-56"
+            style={{ padding: '8px 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: '0.88rem', width: 220 }}
           />
-          <div className="flex items-center bg-slate-100 p-1 rounded-lg">
+          <div style={{ display: 'flex', background: '#f1f5f9', padding: 4, borderRadius: 10, gap: 4 }}>
             <button
-              onClick={() => setLayoutType("grid")}
-              className={`px-3 py-1 rounded text-xs font-bold ${
-                layoutType === "grid" ? "bg-white text-blue-700 shadow-sm" : "text-slate-600"
-              }`}
+              onClick={() => setLayoutType('grid')}
+              style={{ padding: '6px 12px', borderRadius: 8, border: 'none', background: layoutType === 'grid' ? '#ffffff' : 'transparent', color: layoutType === 'grid' ? '#4f46e5' : '#64748b', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}
             >
-              Luoi
+              Lưới
             </button>
             <button
-              onClick={() => setLayoutType("list")}
-              className={`px-3 py-1 rounded text-xs font-bold ${
-                layoutType === "list" ? "bg-white text-blue-700 shadow-sm" : "text-slate-600"
-              }`}
+              onClick={() => setLayoutType('list')}
+              style={{ padding: '6px 12px', borderRadius: 8, border: 'none', background: layoutType === 'list' ? '#ffffff' : 'transparent', color: layoutType === 'list' ? '#4f46e5' : '#64748b', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}
             >
-              Bang
+              Danh sách
             </button>
           </div>
         </div>
       </div>
 
-      {/* Danh sach De thi */}
-      <div
-        className={
-          layoutType === "grid"
-            ? "grid grid-cols-1 md:grid-cols-2 gap-5"
-            : "flex flex-col gap-3"
-        }
-      >
+      {/* Danh sách Đề thi */}
+      <div style={{ display: 'grid', gridTemplateColumns: layoutType === 'grid' ? 'repeat(auto-fit, minmax(340px, 1fr))' : '1fr', gap: 18 }}>
         {filteredExams.map((ex) => (
-          <div
-            key={ex.id}
-            className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4"
-          >
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="px-2.5 py-1 rounded bg-blue-50 text-blue-700 text-xs font-bold">
-                  {ex.grade} • {ex.duration} Phut • {ex.questionCount} Cau
+          <div key={ex.id} style={{ background: '#ffffff', padding: 24, borderRadius: 20, border: '1px solid #e2e8f0', boxShadow: '0 4px 10px rgba(0, 0, 0, 0.03)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 14 }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '4px 10px', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800 }}>
+                  {ex.grade} • {ex.duration} Phút • {ex.questionCount} Câu
                 </span>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
+                <span style={{ background: '#dcfce7', color: '#166534', padding: '4px 10px', borderRadius: 12, fontSize: '0.75rem', fontWeight: 800 }}>
                   {ex.status}
                 </span>
               </div>
-              <h3 className="text-lg font-bold text-slate-800">{ex.title}</h3>
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                <span className="text-xs text-slate-500">Bo Ma de da tron:</span>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', margin: '0 0 10px 0' }}>{ex.title}</h3>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+                <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Bộ Mã đề đã trộn:</span>
                 {ex.examCodes.map((code) => (
-                  <span
-                    key={code}
-                    className="px-2 py-0.5 rounded bg-slate-100 border border-slate-300 text-xs font-mono font-bold text-slate-700"
-                  >
-                    Ma {code}
+                  <span key={code} style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', padding: '2px 8px', borderRadius: 6, fontSize: '0.76rem', fontFamily: 'monospace', fontWeight: 800 }}>
+                    Mã {code}
                   </span>
                 ))}
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-              <span>
-                Da cham: <strong>{ex.attempts} bai</strong> | Diem TB:{" "}
-                <strong>{ex.avgScore}</strong>
-              </span>
+            <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: '#64748b' }}>
+              <span>Đã chấm: <b>{ex.attempts} bài</b> | Điểm TB: <b>{ex.avgScore}</b></span>
               <button
-                onClick={() => setViewMode("wizard")}
-                className="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 font-bold hover:bg-blue-100"
+                onClick={() => setViewMode('wizard')}
+                style={{ padding: '7px 14px', borderRadius: 10, border: 'none', background: '#eef2ff', color: '#4338ca', fontWeight: 700, cursor: 'pointer' }}
               >
-                Mo Wizard / In De
+                Mở Wizard / In Đề
               </button>
             </div>
           </div>
