@@ -12,6 +12,12 @@ import TeacherWorkspace from './pages/teacher/TeacherWorkspace';
 import LessonPlanAI from './pages/teacher/LessonPlanAI';
 import ExerciseCreator from './pages/teacher/ExerciseCreator';
 
+// Nhập 4 màn hình Quản trị hệ thống của Admin (Tuần 2 - Thành viên 2)
+import UserManagement from './pages/admin/UserManagement';
+import SystemSettings from './pages/admin/SystemSettings';
+import FrameworkConfig from './pages/admin/FrameworkConfig';
+import RevenueDashboard from './pages/admin/RevenueDashboard';
+
 export default function App() {
   return (
     <AuthProvider>
@@ -68,17 +74,14 @@ export default function App() {
             </Route>
           </Route>
 
-          {/* Khu vực của ADMIN */}
+          {/* Khu vực của ADMIN (Đã gắn đủ 4/4 màn hình chính thức) */}
           <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
             <Route element={<MainPortalLayout />}>
-              <Route
-                path="/admin/*"
-                element={
-                  <div className="p-6 bg-white rounded-xl border border-slate-200 font-semibold text-purple-700">
-                    Khung giao diện Admin đã sẵn sàng.
-                  </div>
-                }
-              />
+              <Route path="/admin/users" element={<UserManagement />} />
+              <Route path="/admin/settings" element={<SystemSettings />} />
+              <Route path="/admin/frameworks" element={<FrameworkConfig />} />
+              <Route path="/admin/revenue" element={<RevenueDashboard />} />
+              <Route path="/admin/*" element={<Navigate to="/admin/users" replace />} />
             </Route>
           </Route>
 
