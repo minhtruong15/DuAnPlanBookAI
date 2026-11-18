@@ -41,4 +41,12 @@ export const userRepository = {
       data: { role },
     });
   },
+
+  // Cập nhật trạng thái Khóa / Mở khóa tài khoản (isActive)
+  updateActiveStatus: async (id, isActive) => {
+    return await prisma.user.update({
+      where: { id: Number(id) },
+      data: { isActive: Boolean(isActive) },
+    });
+  },
 };
