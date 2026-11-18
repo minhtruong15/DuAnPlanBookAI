@@ -4,6 +4,9 @@ FROM node:20-alpine
 # Thiết lập thư mục làm việc bên trong Container Backend
 WORKDIR /app
 
+# Cài đặt OpenSSL để Prisma nhận diện đúng thư viện mã hóa trên Alpine Linux
+RUN apk add --no-cache openssl
+
 # Sao chép file package.json và thư mục prisma vào trước
 COPY package*.json ./
 COPY prisma ./prisma/
