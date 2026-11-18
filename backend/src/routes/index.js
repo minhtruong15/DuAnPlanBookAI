@@ -1,6 +1,7 @@
 import express from 'express';
 import { authController } from '../controllers/authController.js';
 import { adminController } from '../controllers/adminController.js';
+import { managerController } from '../controllers/managerController.js';
 import { staffController } from '../controllers/staffController.js';
 import { authenticateToken } from '../middlewares/authMiddleware.js';
 import { authorizeRoles } from '../middlewares/rbacMiddleware.js';
@@ -31,7 +32,14 @@ router.get('/admin/frameworks', authenticateToken, authorizeRoles('ADMIN'), admi
 router.post('/admin/frameworks', authenticateToken, authorizeRoles('ADMIN'), adminController.createFramework);
 router.get('/admin/revenue', authenticateToken, authorizeRoles('ADMIN'), adminController.getRevenueStats);
 
-// 4. Nhánh API Nhân viên Học liệu (/api/staff/*) - Cho phép Role: STAFF, MANAGER, ADMIN
+// 4. Nhánh API Quản lý Gói cước, Đơn hàng & Duyệt nội dung (/api/manager/*) - Cho phép Role: MANAGER, ADMIN
+router.get('/manager/packages', authenticateToken, authorizeRoles('MANAGER', 'ADMIN', 'TEACHER'), managerController.getPackages);
+router.post('/manager/packages', authenticateToken, authorizeRoles('MANAGER', 'ADMIN'), managerController.createPackage);
+router.get('/manager/orders', authenticateToken, authorizeRoles('MANAGER', 'ADMIN'), managerController.getOrders);
+router.put('/manager/orders/:id/confirm', authenticateToken, authorizeRoles('MANAGER', 'ADMIN'), managerController.confirmOrder);
+router.put('/manager/approvals/:id', authenticateToken, authorizeRoles('MANAGER', 'ADMIN'), managerController.approveContent);
+
+// 5. Nhánh API Nhân viên Học liệu (/api/staff/*) - Cho phép Role: STAFF, MANAGER, ADMIN
 router.get('/staff/lesson-plans', authenticateToken, authorizeRoles('STAFF', 'MANAGER', 'ADMIN'), staffController.getSampleLessonPlans);
 router.post('/staff/lesson-plans', authenticateToken, authorizeRoles('STAFF', 'ADMIN'), staffController.createSampleLessonPlan);
 router.get('/staff/questions', authenticateToken, authorizeRoles('STAFF', 'MANAGER', 'ADMIN'), staffController.getQuestions);
