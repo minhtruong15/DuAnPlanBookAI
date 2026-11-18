@@ -1,218 +1,219 @@
 // File: frontend/src/pages/staff/PromptTemplates.jsx
-// Chuc nang: Trinh Quan ly AI Prompts, Dark-mode System Instruction Editor & Tinh chinh Tham so Temperature / Max Tokens
-// Nang cap tu PromptManager.jsx cua PlanbookAI-main, tuan thu Luat 7 (Code sach 100%, khong icon/emoji)
+// Chức năng: Quản lý AI Prompts, Dark-mode System Instruction Editor & Tham số Temperature / Max Tokens
+// Đồng bộ giao diện từ PromptManager.jsx của PlanbookAI-main, tuân thủ Luật 7 (Code sạch 100%, không icon/emoji)
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 const PromptTemplates = () => {
-  // State chon Khuon mau Prompt dang chinh sua
-  const [activeKey, setActiveKey] = useState("lesson_5512");
-  // State hien thi ket qua chay thu Prompt (Sandbox Test)
-  const [testResult, setTestResult] = useState("");
+  const [activeKey, setActiveKey] = useState('lesson_5512');
+  const [testResult, setTestResult] = useState('');
 
-  // Danh sach cac Khuon mau Prompt AI Chuyen sau Hoa hoc THPT
   const [prompts, setPrompts] = useState({
     lesson_5512: {
-      name: "1. Prompt Soan Giao an Hoa hoc (Chuan 5512)",
-      description:
-        "Khuon mau lenh he thong dung de sinh Ke hoach bai day Hoa hoc THPT gom 3 Muc tieu va 4 Hoat dong.",
+      name: 'Khung Giáo án Tự động (Công văn 5512)',
+      description: 'Prompt sử dụng để xây dựng dàn ý giáo án Hóa học THPT chuẩn Công văn 5512.',
       systemInstruction:
-        "Ban la Chuyen gia Su pham Hoa hoc THPT cua Bo GD&DT Viet Nam. Hay thiet ke Ke hoach bai day theo dung cau truc Cong van 5512 gom: I. Muc tieu (Kien thuc, Nang luc hoa hoc, Pham chat); II. Thiet bi day hoc & Hoa chat; III. Tien trinh 4 Hoat dong (Khoi dong, Hinh thanh kien thuc, Luyen tap, Van dung). Cac phuong trinh hoa hoc phai can bang chinh xac va dung danh phap IUPAC.",
-      model: "gemini-2.5-flash",
-      temperature: 0.4,
-      maxTokens: 4096,
+        'Bạn là Chuyên gia Sư phạm Hóa học THPT của Bộ GD&ĐT Việt Nam. Hãy tạo ra một Kế hoạch bài dạy chi tiết bao gồm: I. Mục tiêu (Kiến thức, Năng lực hóa học, Phẩm chất); II. Thiết bị dạy học & Hóa chất; III. Tiến trình 4 Hoạt động (Khởi động, Hình thành kiến thức, Luyện tập, Vận dụng). Các phương trình hóa học phải cân bằng chính xác và dùng danh pháp IUPAC.',
+      model: 'gemini-2.5-flash',
+      temperature: 0.5,
+      maxTokens: 4000,
     },
     exam_matrix: {
-      name: "2. Prompt Sinh De thi theo Ma tran Nhan thuc",
-      description:
-        "Khuon mau dung de sinh bo cau hoi trac nghiem Hoa hoc 4 lua chon A, B, C, D phan loai theo 4 muc do.",
+      name: 'Sinh Đề thi Thông minh theo Ma trận',
+      description: 'Prompt sử dụng để tạo câu hỏi trắc nghiệm Hóa học 4 lựa chọn dựa trên Ma trận nhận thức.',
       systemInstruction:
-        "Ban la Chuyen gia Khao thi Hoa hoc THPT. Dua tren Ma tran nhan thuc (Nhan biet, Thong hieu, Van dung, Van dung cao) va Chu de bai hoc {{topic}}, hay sinh danh sach cau hoi trac nghiem khach quan 4 dap an A, B, C, D kem dap an dung va huong dan giai chi tiet.",
-      model: "gemini-2.5-pro",
-      temperature: 0.6,
-      maxTokens: 4096,
+        'Bạn là chuyên gia khảo thí môn Hóa học THPT. Nhiệm vụ của bạn là sinh ra các câu hỏi trắc nghiệm khách quan 4 lựa chọn A, B, C, D đảm bảo tính chính xác khoa học và phân loại đúng 4 mức độ (Nhận biết, Thông hiểu, Vận dụng, Vận dụng cao).',
+      model: 'gemini-2.5-pro',
+      temperature: 0.7,
+      maxTokens: 2048,
     },
     ocr_feedback: {
-      name: "3. Prompt Phan tich Loi sai OCR & Nhan xet Hoc sinh",
-      description:
-        "Khuon mau dung de phan tich cac cau hoc sinh khoanh sai tren phieu OCR va de xuat lo trinh phu dao.",
+      name: 'Phân tích Lỗi sai OCR & Gợi ý Phụ đạo',
+      description: 'Prompt tổng hợp câu sai trên phiếu trả lời trắc nghiệm để đưa ra nhận xét cho từng học sinh.',
       systemInstruction:
-        "Dua tren danh sach cac cau hoi Hoa hoc ma hoc sinh khoanh sai {{wrong_questions}}, hay nhan xet ngan gon diem manh, chi ro lo hong kien thuc hoa hoc va de xuat 3 dang bai tap can on luyen them.",
-      model: "gemini-2.5-flash",
-      temperature: 0.5,
+        'Dựa trên danh sách các câu hỏi Hóa học mà học sinh khoanh sai {{wrong_questions}}, hãy nhận xét ngắn gọn điểm mạnh, chỉ rõ lỗ hổng kiến thức và đề xuất 3 dạng bài tập ôn luyện.',
+      model: 'gemini-2.5-flash',
+      temperature: 0.4,
       maxTokens: 2048,
     },
   });
 
-  const currentPrompt = prompts[activeKey];
+  const currentConfig = prompts[activeKey];
 
-  // Ham cap nhat gia tri tham so cua Prompt dang chon
-  const handleUpdateField = (field, value) => {
+  const handleConfigChange = (key, value) => {
     setPrompts((prev) => ({
       ...prev,
-      [activeKey]: {
-        ...prev[activeKey],
-        [field]: value,
-      },
+      [activeKey]: { ...prev[activeKey], [key]: value },
     }));
   };
 
-  // Ham chay thu Prompt tren Sandbox
-  const handleRunPromptSandbox = () => {
+  const handleTestPrompt = () => {
     setTestResult(
-      `[KET QUA CHAY THU SANDBOX - Model: ${currentPrompt.model} | Temp: ${currentPrompt.temperature} | MaxTokens: ${currentPrompt.maxTokens}]:\nHe thong Gemini AI da tiep nhan System Instruction va phan hoi JSON hop le (Thoi gian xu ly: 0.85s - Trang thai: SAN SANG PHAT HANH).`
+      `[CHẠY THỬ SANDBOX THÀNH CÔNG - Model: ${currentConfig.model} | Temperature: ${currentConfig.temperature} | Max Tokens: ${currentConfig.maxTokens}]\nBộ não Gemini AI đã tiếp nhận System Instruction và sẵn sàng phục vụ Giáo viên Hóa học.`
     );
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">
-            Quan ly Khuon mau AI Prompts & Tham so Mo hinh (Staff IDE)
+          <h1 style={{ fontSize: '1.9rem', fontWeight: 900, color: '#312e81', margin: 0 }}>
+            Quản lý AI Prompts
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Tinh chinh System Instruction, dieu chinh do sang tao Temperature va Max Tokens cho bo nao Gemini AI
+          <p style={{ color: '#64748b', fontSize: '0.98rem', marginTop: 6, marginBottom: 0 }}>
+            Tinh chỉnh bộ não AI, thiết lập lệnh hệ thống để tối ưu hóa chất lượng đầu ra môn Hóa học.
           </p>
         </div>
         <button
-          onClick={() => alert("Da luu cau hinh AI Prompt vao Co so du lieu!")}
-          className="px-5 py-2.5 rounded-lg bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700"
+          onClick={() => alert('Đã lưu cấu hình AI Prompt vào hệ thống!')}
+          className="btn-primary"
+          style={{ padding: '12px 24px', borderRadius: 12 }}
         >
-          [Luu Cau hinh Prompt]
+          Lưu cấu hình
         </button>
       </div>
 
-      {/* Bo cuc 2 Cot: Danh sach Prompts ben trai + Trinh IDE & Tham so ben phai */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Sidebar Danh sach Prompts */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2 h-fit">
-          <h2 className="text-xs font-bold text-slate-500 uppercase px-2 mb-2">
-            Danh sach Khuon mau AI
-          </h2>
-          {Object.entries(prompts).map(([key, item]) => (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 22, alignItems: 'start' }}>
+        {/* Sidebar Danh sách Prompts */}
+        <div style={{ background: '#ffffff', borderRadius: 20, padding: 20, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#1e293b', margin: '0 0 8px 0' }}>
+            Danh sách Prompts
+          </h3>
+          {Object.entries(prompts).map(([key, p]) => (
             <button
               key={key}
               onClick={() => {
                 setActiveKey(key);
-                setTestResult("");
+                setTestResult('');
               }}
-              className={`w-full text-left px-3.5 py-3 rounded-xl text-xs font-bold transition-all ${
-                activeKey === key
-                  ? "bg-indigo-50 text-indigo-700 border border-indigo-300"
-                  : "text-slate-600 hover:bg-slate-100"
-              }`}
+              style={{
+                textAlign: 'left',
+                padding: '12px 14px',
+                borderRadius: 12,
+                border: 'none',
+                background: activeKey === key ? '#eef2ff' : 'transparent',
+                color: activeKey === key ? '#4338ca' : '#475569',
+                fontWeight: activeKey === key ? 800 : 600,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+              }}
             >
-              {item.name}
+              {p.name}
             </button>
           ))}
         </div>
 
-        {/* Khu vuc Chinh sua System Instruction & Model Parameters */}
-        <div className="lg:col-span-3 space-y-6">
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-            <h2 className="text-lg font-bold text-slate-800">
-              {currentPrompt.name}
-            </h2>
-            <p className="text-xs text-slate-500 mt-1">
-              {currentPrompt.description}
-            </p>
+        {/* Trình Chỉnh sửa chính + Parameters */}
+        <div style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={{ background: '#ffffff', borderRadius: 20, padding: 22, border: '1px solid #e2e8f0' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1e293b', margin: '0 0 6px 0' }}>{currentConfig.name}</h2>
+            <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>{currentConfig.description}</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Dark-mode System Instruction Editor */}
-            <div className="lg:col-span-2 bg-slate-900 rounded-xl border border-slate-800 overflow-hidden flex flex-col">
-              <div className="bg-slate-950 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-slate-300">
-                  SYSTEM INSTRUCTION EDITOR (IUPAC CHEMISTRY)
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20 }}>
+            {/* Dark-mode System Instruction Editor giống hệt PromptManager.jsx */}
+            <div style={{ background: '#1e293b', borderRadius: 20, overflow: 'hidden', border: '1px solid #334155', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ background: '#0f172a', padding: '12px 18px', borderBottom: '1px solid #334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#e2e8f0', fontSize: '0.86rem', fontWeight: 700, fontFamily: 'monospace' }}>
+                  System Instruction
                 </span>
-                <span className="text-[11px] font-mono text-emerald-400">
-                  UTF-8 • Ready
-                </span>
+                <span style={{ color: '#34d399', fontSize: '0.75rem', fontFamily: 'monospace' }}>Ready</span>
               </div>
               <textarea
-                rows="10"
-                value={currentPrompt.systemInstruction}
-                onChange={(e) =>
-                  handleUpdateField("systemInstruction", e.target.value)
-                }
-                className="w-full p-4 bg-slate-900 text-sky-300 font-mono text-xs leading-relaxed focus:outline-none"
+                value={currentConfig.systemInstruction}
+                onChange={(e) => handleConfigChange('systemInstruction', e.target.value)}
+                style={{
+                  width: '100%',
+                  height: 280,
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#38bdf8',
+                  padding: 18,
+                  fontSize: '0.9rem',
+                  fontFamily: 'monospace',
+                  outline: 'none',
+                  resize: 'vertical',
+                  lineHeight: 1.6,
+                }}
               />
             </div>
 
-            {/* Bang Dieu chinh Tham so Mo hinh (Model Parameters) */}
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-5">
-              <h3 className="text-sm font-bold text-slate-800 border-b pb-2">
-                Tham so Mo hinh AI (Parameters)
+            {/* Model Parameters */}
+            <div style={{ background: '#ffffff', borderRadius: 20, padding: 22, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 18 }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>
+                Tham số Mô hình (Parameters)
               </h3>
 
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">
-                  Phien ban Mo hinh (AI Model)
+                <label style={{ display: 'block', marginBottom: 6, fontSize: '0.85rem', fontWeight: 700, color: '#475569' }}>
+                  Mô hình Gemini AI
                 </label>
                 <select
-                  value={currentPrompt.model}
-                  onChange={(e) => handleUpdateField("model", e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-bold bg-slate-50"
+                  value={currentConfig.model}
+                  onChange={(e) => handleConfigChange('model', e.target.value)}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #cbd5e1', background: '#f8fafc', fontWeight: 700 }}
                 >
-                  <option value="gemini-2.5-flash">gemini-2.5-flash (Toc do cao)</option>
-                  <option value="gemini-2.5-pro">gemini-2.5-pro (Suy luan sau)</option>
+                  <option value="gemini-2.5-flash">gemini-2.5-flash (Tốc độ cao)</option>
+                  <option value="gemini-2.5-pro">gemini-2.5-pro (Chuyên sâu Hóa học)</option>
                 </select>
               </div>
 
               <div>
-                <div className="flex justify-between text-xs font-bold text-slate-600 mb-1">
-                  <span>Temperature (Do sang tao)</span>
-                  <span className="text-indigo-600">{currentPrompt.temperature}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: '0.85rem', fontWeight: 700, color: '#475569' }}>
+                  <span>Temperature</span>
+                  <span style={{ color: '#4f46e5' }}>{currentConfig.temperature}</span>
                 </div>
                 <input
                   type="range"
                   min="0"
                   max="2"
                   step="0.1"
-                  value={currentPrompt.temperature}
-                  onChange={(e) =>
-                    handleUpdateField("temperature", parseFloat(e.target.value))
-                  }
-                  className="w-full accent-indigo-600"
+                  value={currentConfig.temperature}
+                  onChange={(e) => handleConfigChange('temperature', parseFloat(e.target.value))}
+                  style={{ width: '100%', accentColor: '#4f46e5' }}
                 />
-                <div className="flex justify-between text-[11px] text-slate-400 mt-0.5">
-                  <span>0.0 (Chinh xac)</span>
-                  <span>2.0 (Sang tao)</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#94a3b8' }}>
+                  <span>Chính xác</span>
+                  <span>Sáng tạo</span>
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between text-xs font-bold text-slate-600 mb-1">
-                  <span>Max Output Tokens</span>
-                  <span className="text-indigo-600">{currentPrompt.maxTokens}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: '0.85rem', fontWeight: 700, color: '#475569' }}>
+                  <span>Max Tokens</span>
+                  <span style={{ color: '#4f46e5' }}>{currentConfig.maxTokens}</span>
                 </div>
                 <input
                   type="range"
                   min="512"
                   max="8192"
                   step="512"
-                  value={currentPrompt.maxTokens}
-                  onChange={(e) =>
-                    handleUpdateField("maxTokens", parseInt(e.target.value, 10))
-                  }
-                  className="w-full accent-indigo-600"
+                  value={currentConfig.maxTokens}
+                  onChange={(e) => handleConfigChange('maxTokens', parseInt(e.target.value, 10))}
+                  style={{ width: '100%', accentColor: '#4f46e5' }}
                 />
               </div>
 
               <button
-                onClick={handleRunPromptSandbox}
-                className="w-full py-2.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700"
+                onClick={handleTestPrompt}
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  borderRadius: 10,
+                  border: '1px solid #cbd5e1',
+                  background: '#f8fafc',
+                  color: '#059669',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                }}
               >
-                [Chay thu Prompt (Sandbox)]
+                Chạy thử Prompt (Sandbox)
               </button>
             </div>
           </div>
 
-          {/* Hien thi ket qua chay thu */}
           {testResult && (
-            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 font-mono text-xs whitespace-pre-line">
+            <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', color: '#065f46', padding: 16, borderRadius: 14, fontFamily: 'monospace', fontSize: '0.85rem', whiteSpace: 'pre-line' }}>
               {testResult}
             </div>
           )}

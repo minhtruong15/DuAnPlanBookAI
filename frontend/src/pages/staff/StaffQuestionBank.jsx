@@ -1,53 +1,45 @@
 // File: frontend/src/pages/staff/StaffQuestionBank.jsx
-// Chuc nang: Phan he Staff Xay dung Ngan hang Cau hoi Hoa hoc Chuan & Gui Manager Phe duyet
-// Nang cap tu QuestionBank cua PlanbookAI-main, tuan thu Luat 7 (Code sach 100%, khong icon/emoji)
+// Chức năng: Phân hệ Staff Xây dựng Ngân hàng Câu hỏi Hóa học Hệ thống & Gửi Manager Phê duyệt
+// Tuân thủ Luật 7 (Code sạch 100%, không icon/emoji)
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 const StaffQuestionBank = () => {
-  // Danh sach cau hoi do Staff bien soan
   const [staffQuestions, setStaffQuestions] = useState([
     {
-      id: "ST-Q101",
-      grade: "Khoi 12",
-      topic: "Carbohydrate",
-      level: "Thong hieu",
-      status: "Cho duyet",
-      content: "Thuoc thu dung de phan biet dung dich Glucose va dung dich Glycerol la:",
-      options: [
-        "Cu(OH)2 o nhiet do thuong",
-        "Dung dich AgNO3 trong NH3, dun nong",
-        "Kim loai Na",
-        "Nuoc Bromine",
-      ],
-      correct: "B",
+      id: 'ST-Q101',
+      grade: 'Lớp 12',
+      topic: 'Carbohydrate',
+      level: 'Thông hiểu',
+      status: 'Chờ duyệt',
+      content: 'Thuốc thử dùng để phân biệt dung dịch Glucose và dung dịch Glycerol là:',
+      options: ['Cu(OH)2 ở nhiệt độ thường', 'Dung dịch AgNO3 trong NH3, đun nóng', 'Kim loại Na', 'Nước Bromine'],
+      correct: 'B',
     },
     {
-      id: "ST-Q102",
-      grade: "Khoi 10",
-      topic: "Phan ung Oxi hoa - Khu",
-      level: "Nhan biet",
-      status: "Da duyet",
-      content: "So oxi hoa cua nguyen tu Sulfur (S) trong phan tu H2SO4 la:",
-      options: ["+2", "+4", "+6", "-2"],
-      correct: "C",
+      id: 'ST-Q102',
+      grade: 'Lớp 10',
+      topic: 'Phản ứng Oxi hóa - Khử',
+      level: 'Nhận biết',
+      status: 'Đã duyệt',
+      content: 'Số oxi hóa của nguyên tử Sulfur (S) trong phân tử H2SO4 là:',
+      options: ['+2', '+4', '+6', '-2'],
+      correct: 'C',
     },
   ]);
 
-  // State form bien soan cau hoi moi cua Staff
   const [form, setForm] = useState({
-    grade: "Khoi 10",
-    topic: "Cau tao nguyen tu",
-    level: "Nhan biet",
-    content: "",
-    options: ["", "", "", ""],
-    correct: "A",
+    grade: 'Lớp 10',
+    topic: 'Cấu tạo nguyên tử',
+    level: 'Nhận biết',
+    content: '',
+    options: ['', '', '', ''],
+    correct: 'A',
   });
 
-  // Ham luu va gui Manager phe duyet
   const handleAddAndSubmit = (submitStatus) => {
     if (!form.content.trim()) {
-      alert("Vui long nhap noi dung cau hoi Hoa hoc!");
+      alert('Vui lòng nhập nội dung câu hỏi Hóa học!');
       return;
     }
     const newItem = {
@@ -57,171 +49,117 @@ const StaffQuestionBank = () => {
     };
     setStaffQuestions((prev) => [newItem, ...prev]);
     setForm({
-      grade: "Khoi 10",
-      topic: "Cau tao nguyen tu",
-      level: "Nhan biet",
-      content: "",
-      options: ["", "", "", ""],
-      correct: "A",
+      grade: 'Lớp 10',
+      topic: 'Cấu tạo nguyên tử',
+      level: 'Nhận biết',
+      content: '',
+      options: ['', '', '', ''],
+      correct: 'A',
     });
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-        <h1 className="text-2xl font-bold text-slate-800">
-          Bien soan Ngan hang Cau hoi Hoa hoc He thong (Staff Portal)
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+      <div>
+        <h1 style={{ fontSize: '1.9rem', fontWeight: 900, color: '#064e3b', margin: 0 }}>
+          Biên soạn Ngân hàng Câu hỏi Hệ thống
         </h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Xay dung kho cau hoi chuan Chuong trinh GDPT 2018 va gui len Manager phe duyet
+        <p style={{ color: '#64748b', fontSize: '0.98rem', marginTop: 6, marginBottom: 0 }}>
+          Xây dựng kho câu hỏi chuẩn Chương trình GDPT 2018 và gửi lên Manager kiểm duyệt.
         </p>
       </div>
 
-      {/* Form Bien soan Cau hoi */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-        <h2 className="text-base font-bold text-slate-800 border-b pb-2">
-          1. Form Bien soan Cau hoi Trac nghiem Hoa hoc Moi
+      {/* Form Biên soạn */}
+      <div style={{ background: '#ffffff', padding: 26, borderRadius: 20, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, borderBottom: '1px solid #f1f5f9', paddingBottom: 10 }}>
+          Biên soạn Câu hỏi Trắc nghiệm Hóa học Mới
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-600 mb-1">Khoi lop</label>
-            <select
-              value={form.grade}
-              onChange={(e) => setForm({ ...form, grade: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-bold"
-            >
-              <option value="Khoi 10">Khoi 10</option>
-              <option value="Khoi 11">Khoi 11</option>
-              <option value="Khoi 12">Khoi 12</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-slate-600 mb-1">Chuyen de Hoa hoc</label>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+          <select value={form.grade} onChange={(e) => setForm({ ...form, grade: e.target.value })} style={{ padding: '9px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontWeight: 700 }}>
+            <option value="Lớp 10">Lớp 10</option>
+            <option value="Lớp 11">Lớp 11</option>
+            <option value="Lớp 12">Lớp 12</option>
+          </select>
+          <input type="text" value={form.topic} onChange={(e) => setForm({ ...form, topic: e.target.value })} placeholder="Chuyên đề Hóa học..." style={{ padding: '9px 12px', borderRadius: 10, border: '1px solid #cbd5e1' }} />
+          <select value={form.level} onChange={(e) => setForm({ ...form, level: e.target.value })} style={{ padding: '9px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontWeight: 700 }}>
+            <option value="Nhận biết">Nhận biết</option>
+            <option value="Thông hiểu">Thông hiểu</option>
+            <option value="Vận dụng">Vận dụng</option>
+            <option value="Vận dụng cao">Vận dụng cao</option>
+          </select>
+          <select value={form.correct} onChange={(e) => setForm({ ...form, correct: e.target.value })} style={{ padding: '9px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontWeight: 700 }}>
+            <option value="A">Đáp án đúng: A</option>
+            <option value="B">Đáp án đúng: B</option>
+            <option value="C">Đáp án đúng: C</option>
+            <option value="D">Đáp án đúng: D</option>
+          </select>
+        </div>
+
+        <textarea
+          rows="2"
+          value={form.content}
+          onChange={(e) => setForm({ ...form, content: e.target.value })}
+          placeholder="Nhập nội dung đề bài câu hỏi Hóa học..."
+          style={{ padding: 12, borderRadius: 10, border: '1px solid #cbd5e1' }}
+        />
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
+          {['A', 'B', 'C', 'D'].map((char, idx) => (
             <input
+              key={char}
               type="text"
-              value={form.topic}
-              onChange={(e) => setForm({ ...form, topic: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs"
+              value={form.options[idx]}
+              onChange={(e) => {
+                const updated = [...form.options];
+                updated[idx] = e.target.value;
+                setForm({ ...form, options: updated });
+              }}
+              placeholder={`Phương án ${char}...`}
+              style={{ padding: '9px 12px', borderRadius: 10, border: '1px solid #cbd5e1' }}
             />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-slate-600 mb-1">Muc do Nhan thuc</label>
-            <select
-              value={form.level}
-              onChange={(e) => setForm({ ...form, level: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-bold"
-            >
-              <option value="Nhan biet">Nhan biet</option>
-              <option value="Thong hieu">Thong hieu</option>
-              <option value="Van dung">Van dung</option>
-              <option value="Van dung cao">Van dung cao</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-slate-600 mb-1">Dap an Dung</label>
-            <select
-              value={form.correct}
-              onChange={(e) => setForm({ ...form, correct: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-bold"
-            >
-              <option value="A">Phuong an A</option>
-              <option value="B">Phuong an B</option>
-              <option value="C">Phuong an C</option>
-              <option value="D">Phuong an D</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-bold text-slate-600 mb-1">Noi dung De bai *</label>
-          <textarea
-            rows="2"
-            value={form.content}
-            onChange={(e) => setForm({ ...form, content: e.target.value })}
-            placeholder="Nhap noi dung cau hoi Hoa hoc..."
-            className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {["A", "B", "C", "D"].map((char, idx) => (
-            <div key={char} className="flex items-center gap-2">
-              <span className="text-xs font-bold w-6">{char}.</span>
-              <input
-                type="text"
-                value={form.options[idx]}
-                onChange={(e) => {
-                  const updated = [...form.options];
-                  updated[idx] = e.target.value;
-                  setForm({ ...form, options: updated });
-                }}
-                placeholder={`Nhap phuong an ${char}...`}
-                className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs"
-              />
-            </div>
           ))}
         </div>
 
-        <div className="flex justify-end gap-3 pt-2">
-          <button
-            onClick={() => handleAddAndSubmit("Ban nhap")}
-            className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 text-xs font-bold"
-          >
-            Luu Ban nhap
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+          <button onClick={() => handleAddAndSubmit('Bản nháp')} style={{ padding: '10px 18px', borderRadius: 10, border: '1px solid #cbd5e1', background: '#ffffff', fontWeight: 700, cursor: 'pointer' }}>
+            Lưu Bản nháp
           </button>
-          <button
-            onClick={() => handleAddAndSubmit("Cho duyet")}
-            className="px-5 py-2 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700"
-          >
-            [Gui Manager Phe duyet]
+          <button onClick={() => handleAddAndSubmit('Chờ duyệt')} style={{ padding: '10px 20px', borderRadius: 10, border: 'none', background: '#059669', color: '#ffffff', fontWeight: 700, cursor: 'pointer' }}>
+            Gửi Manager Phê duyệt
           </button>
         </div>
       </div>
 
-      {/* Danh sach Cau hoi Staff da bien soan */}
-      <div className="space-y-4">
+      {/* Danh sách Câu hỏi Staff */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {staffQuestions.map((q) => (
-          <div
-            key={q.id}
-            className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 rounded bg-slate-100 font-mono text-xs font-bold">
-                  {q.id}
-                </span>
-                <span className="px-2.5 py-1 rounded bg-blue-50 text-blue-700 text-xs font-bold">
-                  {q.grade} • {q.topic}
-                </span>
-                <span className="px-2.5 py-1 rounded bg-indigo-50 text-indigo-700 text-xs font-bold">
-                  {q.level}
-                </span>
+          <div key={q.id} style={{ background: '#ffffff', padding: 22, borderRadius: 20, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <span style={{ background: '#f1f5f9', padding: '4px 10px', borderRadius: 8, fontFamily: 'monospace', fontWeight: 800, fontSize: '0.78rem' }}>{q.id}</span>
+                <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '4px 10px', borderRadius: 8, fontWeight: 800, fontSize: '0.78rem' }}>{q.grade} • {q.topic}</span>
+                <span style={{ background: '#ede9fe', color: '#6d28d9', padding: '4px 10px', borderRadius: 8, fontWeight: 800, fontSize: '0.78rem' }}>{q.level}</span>
               </div>
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-bold ${
-                  q.status === "Da duyet"
-                    ? "bg-emerald-100 text-emerald-800"
-                    : q.status === "Cho duyet"
-                    ? "bg-amber-100 text-amber-800"
-                    : "bg-slate-100 text-slate-600"
-                }`}
-              >
+              <span style={{ background: q.status === 'Đã duyệt' ? '#dcfce7' : q.status === 'Chờ duyệt' ? '#fef3c7' : '#f1f5f9', color: q.status === 'Đã duyệt' ? '#166534' : q.status === 'Chờ duyệt' ? '#92400e' : '#475569', padding: '4px 12px', borderRadius: 12, fontSize: '0.76rem', fontWeight: 800 }}>
                 {q.status}
               </span>
             </div>
-            <p className="text-sm font-bold text-slate-800">{q.content}</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {["A", "B", "C", "D"].map((char, idx) => (
+            <div style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>{q.content}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
+              {['A', 'B', 'C', 'D'].map((char, idx) => (
                 <div
                   key={char}
-                  className={`p-2.5 rounded-lg border text-xs ${
-                    q.correct === char
-                      ? "bg-emerald-50 border-emerald-400 font-bold text-emerald-900"
-                      : "bg-slate-50 border-slate-200 text-slate-700"
-                  }`}
+                  style={{
+                    padding: '9px 12px',
+                    borderRadius: 10,
+                    border: `1px solid ${q.correct === char ? '#4ade80' : '#e2e8f0'}`,
+                    background: q.correct === char ? '#dcfce7' : '#f8fafc',
+                    fontWeight: q.correct === char ? 700 : 500,
+                    color: q.correct === char ? '#166534' : '#334155',
+                    fontSize: '0.86rem',
+                  }}
                 >
-                  {char}. {q.options[idx]}
+                  <b>{char}.</b> {q.options[idx]}
                 </div>
               ))}
             </div>

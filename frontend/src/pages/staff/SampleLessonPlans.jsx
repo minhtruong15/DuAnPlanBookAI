@@ -1,46 +1,43 @@
 // File: frontend/src/pages/staff/SampleLessonPlans.jsx
-// Chuc nang: Phan he Staff Bien soan Giao an Mau Chuan Cong van 5512 & Gui Manager Phe duyet
-// Nang cap tu SampleEditor/LessonPlanner cua PlanbookAI-main, tuan thu Luat 7 (Code sach 100%, khong icon/emoji)
+// Chức năng: Phân hệ Staff Biên soạn Kho Giáo án Mẫu Hóa học Chuẩn Công văn 5512 & Gửi Manager Phê duyệt
+// Tuân thủ Luật 7 (Code sạch 100%, không icon/emoji)
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 const SampleLessonPlans = () => {
-  // Danh sach Giao an Mau do Staff bien soan
   const [samples, setSamples] = useState([
     {
-      id: "SMP-5512-01",
-      title: "[MAU 5512] Bai: Phan ung Oxi hoa - Khu va Ung dung",
-      grade: "Khoi 10",
-      status: "Da duyet",
+      id: 'SMP-5512-01',
+      title: '[MẪU 5512] Phản ứng Oxi hóa - Khử và Ứng dụng',
+      grade: 'Lớp 10',
+      status: 'Đã duyệt',
       objectives:
-        "Xac dinh duoc so oxi hoa va can bang phuong trinh theo phuong phap thang bang electron.",
+        'Xác định được số oxi hóa và cân bằng phương trình theo phương pháp thăng bằng electron.',
       activities:
-        "4 Hoat dong: Khoi dong (Dinh sat bi gi) -> Hinh thanh kien thuc (4 buoc thang bang e) -> Luyen tap -> Van dung.",
+        '4 Hoạt động: Khởi động (Đinh sắt bị gỉ) -> Hình thành kiến thức (4 bước thăng bằng e) -> Luyện tập -> Vận dụng.',
     },
     {
-      id: "SMP-5512-02",
-      title: "[MAU 5512] Bai 7: Toc do Phan ung va Chat xuc tac",
-      grade: "Khoi 10",
-      status: "Cho duyet",
+      id: 'SMP-5512-02',
+      title: '[MẪU 5512] Bài 7: Tốc độ Phản ứng và Chất xúc tác',
+      grade: 'Lớp 10',
+      status: 'Chờ duyệt',
       objectives:
-        "Trinh bay duoc khai niem toc do phan ung va 5 yeu to anh huong den toc do phan ung hoa hoc.",
+        'Trình bày được khái niệm tốc độ phản ứng và 5 yếu tố ảnh hưởng đến tốc độ phản ứng hóa học.',
       activities:
-        "4 Hoat dong: Khoi dong -> Thi nghiem H2O2 + MnO2 -> Luyen tap 5 cau trac nghiem -> Van dung bao quan thuc pham.",
+        '4 Hoạt động: Khởi động -> Thí nghiệm H2O2 + MnO2 -> Luyện tập 5 câu trắc nghiệm -> Vận dụng bảo quản thực phẩm.',
     },
   ]);
 
-  // State form tao Giao an Mau moi
   const [form, setForm] = useState({
-    title: "",
-    grade: "Khoi 10",
-    objectives: "",
-    activities: "",
+    title: '',
+    grade: 'Lớp 10',
+    objectives: '',
+    activities: '',
   });
 
-  // Ham luu hoac gui Manager phe duyet
   const handleCreateSample = (submitStatus) => {
     if (!form.title.trim()) {
-      alert("Vui long nhap Ten Giao an Mau 5512!");
+      alert('Vui lòng nhập Tên Giáo án Mẫu 5512!');
       return;
     }
     const created = {
@@ -49,127 +46,107 @@ const SampleLessonPlans = () => {
       status: submitStatus,
     };
     setSamples((prev) => [created, ...prev]);
-    setForm({ title: "", grade: "Khoi 10", objectives: "", activities: "" });
+    setForm({ title: '', grade: 'Lớp 10', objectives: '', activities: '' });
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-        <h1 className="text-2xl font-bold text-slate-800">
-          Bien soan Kho Giao an Mau Hoa hoc (Chuan Cong van 5512)
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+      <div>
+        <h1 style={{ fontSize: '1.9rem', fontWeight: 900, color: '#064e3b', margin: 0 }}>
+          Biên soạn Kho Giáo án Mẫu Hóa học (Chuẩn 5512)
         </h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Xay dung cac Mau Ke hoach bai day Hoa hoc THPT chuan de Manager phe duyet va cung cap cho Giao vien
+        <p style={{ color: '#64748b', fontSize: '0.98rem', marginTop: 6, marginBottom: 0 }}>
+          Xây dựng các Mẫu Kế hoạch bài dạy chuẩn Công văn 5512 để Manager phê duyệt và cung cấp cho Giáo viên.
         </p>
       </div>
 
-      {/* Form Tao Giao an Mau 5512 */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-        <h2 className="text-base font-bold text-slate-800 border-b pb-2">
-          1. Thiet ke Giao an Mau Chuan 5512 Moi
+      {/* Form Biên soạn Giáo án Mẫu */}
+      <div style={{ background: '#ffffff', padding: 26, borderRadius: 20, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, borderBottom: '1px solid #f1f5f9', paddingBottom: 10 }}>
+          Thiết kế Giáo án Mẫu Chuẩn 5512 Mới
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-2">
-            <label className="block text-xs font-bold text-slate-600 mb-1">
-              Ten Bai day Mau *
-            </label>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: 6 }}>Tên Bài dạy Mẫu *</label>
             <input
               type="text"
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="VD: [MAU 5512] Bai 12: Carbohydrate - Glucose va Fructose"
-              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
+              placeholder="VD: [MẪU 5512] Bài 12: Carbohydrate - Glucose và Fructose"
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #cbd5e1' }}
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-600 mb-1">
-              Khoi lop THPT
-            </label>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: 6 }}>Khối lớp THPT</label>
             <select
               value={form.grade}
               onChange={(e) => setForm({ ...form, grade: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm font-bold"
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontWeight: 700 }}
             >
-              <option value="Khoi 10">Khoi 10</option>
-              <option value="Khoi 11">Khoi 11</option>
-              <option value="Khoi 12">Khoi 12</option>
+              <option value="Lớp 10">Lớp 10</option>
+              <option value="Lớp 11">Lớp 11</option>
+              <option value="Lớp 12">Lớp 12</option>
             </select>
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-600 mb-1">
-            I. Muc tieu Yeu cau can dat (Kien thuc, Nang luc Hoa hoc, Pham chat)
+          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: 6 }}>
+            I. Mục tiêu Yêu cầu cần đạt (Kiến thức, Năng lực Hóa học, Phẩm chất)
           </label>
           <textarea
             rows="2"
             value={form.objectives}
             onChange={(e) => setForm({ ...form, objectives: e.target.value })}
-            placeholder="Nhap muc tieu chuan Kien thuc, Nang luc, Pham chat..."
-            className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs"
+            placeholder="Nhập mục tiêu chuẩn Kiến thức, Năng lực, Phẩm chất..."
+            style={{ width: '100%', padding: 12, borderRadius: 10, border: '1px solid #cbd5e1' }}
           />
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-600 mb-1">
-            II. Tien trinh 4 Hoat dong (Khoi dong, Hinh thanh kien thuc, Luyen tap, Van dung)
+          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: 6 }}>
+            II. Tiến trình 4 Hoạt động (Khởi động, Hình thành kiến thức, Luyện tập, Vận dụng)
           </label>
           <textarea
             rows="3"
             value={form.activities}
             onChange={(e) => setForm({ ...form, activities: e.target.value })}
-            placeholder="Nhap tom tat tien trinh 4 hoat dong su pham..."
-            className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs"
+            placeholder="Nhập tóm tắt tiến trình 4 hoạt động sư phạm..."
+            style={{ width: '100%', padding: 12, borderRadius: 10, border: '1px solid #cbd5e1' }}
           />
         </div>
 
-        <div className="flex justify-end gap-3">
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
           <button
-            onClick={() => handleCreateSample("Ban nhap")}
-            className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 text-xs font-bold"
+            onClick={() => handleCreateSample('Bản nháp')}
+            style={{ padding: '10px 18px', borderRadius: 10, border: '1px solid #cbd5e1', background: '#ffffff', fontWeight: 700, cursor: 'pointer' }}
           >
-            Luu Ban nhap
+            Lưu Bản nháp
           </button>
           <button
-            onClick={() => handleCreateSample("Cho duyet")}
-            className="px-5 py-2 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700"
+            onClick={() => handleCreateSample('Chờ duyệt')}
+            style={{ padding: '10px 20px', borderRadius: 10, border: 'none', background: '#059669', color: '#ffffff', fontWeight: 700, cursor: 'pointer' }}
           >
-            [Gui Manager Phe duyet]
+            Gửi Manager Phê duyệt
           </button>
         </div>
       </div>
 
-      {/* Danh sach Giao an Mau */}
-      <div className="space-y-4">
+      {/* Danh sách Giáo án Mẫu */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {samples.map((s) => (
-          <div
-            key={s.id}
-            className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2"
-          >
-            <div className="flex items-center justify-between">
-              <span className="px-2.5 py-1 rounded bg-blue-50 text-blue-700 text-xs font-bold">
-                {s.id} • Hoa hoc {s.grade}
+          <div key={s.id} style={{ background: '#ffffff', padding: 22, borderRadius: 20, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '4px 10px', borderRadius: 8, fontSize: '0.78rem', fontWeight: 800 }}>
+                {s.id} • Hóa học {s.grade}
               </span>
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-bold ${
-                  s.status === "Da duyet"
-                    ? "bg-emerald-100 text-emerald-800"
-                    : s.status === "Cho duyet"
-                    ? "bg-amber-100 text-amber-800"
-                    : "bg-slate-100 text-slate-600"
-                }`}
-              >
+              <span style={{ background: s.status === 'Đã duyệt' ? '#dcfce7' : s.status === 'Chờ duyệt' ? '#fef3c7' : '#f1f5f9', color: s.status === 'Đã duyệt' ? '#166534' : s.status === 'Chờ duyệt' ? '#92400e' : '#475569', padding: '4px 12px', borderRadius: 12, fontSize: '0.76rem', fontWeight: 800 }}>
                 {s.status}
               </span>
             </div>
-            <h3 className="text-base font-bold text-slate-800">{s.title}</h3>
-            <p className="text-xs text-slate-600">
-              <strong>Muc tieu:</strong> {s.objectives}
-            </p>
-            <p className="text-xs text-slate-500">
-              <strong>Tien trinh 5512:</strong> {s.activities}
-            </p>
+            <h3 style={{ margin: 0, fontSize: '1.08rem', fontWeight: 800, color: '#0f172a' }}>{s.title}</h3>
+            <p style={{ margin: 0, fontSize: '0.86rem', color: '#475569' }}><b>Mục tiêu:</b> {s.objectives}</p>
+            <p style={{ margin: 0, fontSize: '0.84rem', color: '#64748b' }}><b>Tiến trình 5512:</b> {s.activities}</p>
           </div>
         ))}
       </div>
