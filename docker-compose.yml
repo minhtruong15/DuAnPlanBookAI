@@ -11,7 +11,7 @@ services:
       MYSQL_ROOT_PASSWORD: rootpassword123
       MYSQL_DATABASE: planbookai_db
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - pba_mysql_data:/var/lib/mysql
     networks:
@@ -38,7 +38,7 @@ services:
     networks:
       - pba-network
 
-  # 3. Dịch vụ Giao diện Cổng công cụ Web Frontend (ReactJS + Vite)
+   # 3. Dịch vụ Giao diện Cổng công cụ Web Frontend (ReactJS + Vite)
   frontend:
     build:
       context: ./frontend
@@ -47,6 +47,9 @@ services:
     restart: unless-stopped
     ports:
       - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
     environment:
       VITE_API_BASE_URL: "http://localhost:5000/api"
     depends_on:
@@ -62,3 +65,4 @@ volumes:
 networks:
   pba-network:
     driver: bridge
+

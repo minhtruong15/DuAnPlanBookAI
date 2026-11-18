@@ -1,17 +1,17 @@
+// File: frontend/src/pages/teacher/ExerciseCreator.jsx
+// Chức năng: Tạo Bài tập Hóa học Thông minh (Trắc nghiệm, Điền khuyết, Tự luận ngắn) theo chuẩn GDPT 2018
+// Đồng bộ giao diện .glass-panel bo tròn từ PlanbookAI-main, tuân thủ Luật 7 (Code sạch 100%, không icon/emoji)
+
 import React, { useState } from 'react';
 import { CHEMISTRY_TOPICS, DIFFICULTY_LEVELS } from '../../utils/constants';
-import Button from '../../components/common/Button';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { teacherService } from '../../services/teacherService';
 
 export default function ExerciseCreator() {
-  // Các biến lưu cấu hình tạo bài tập Hóa học thông minh
   const [grade, setGrade] = useState('12');
   const [topic, setTopic] = useState(CHEMISTRY_TOPICS[12][0]);
   const [difficulty, setDifficulty] = useState('THONG_HIEU');
-  const [exerciseType, setExerciseType] = useState('MULTIPLE_CHOICE'); // MULTIPLE_CHOICE, FILL_BLANK, SHORT_ANSWER
+  const [exerciseType, setExerciseType] = useState('MULTIPLE_CHOICE');
   const [questionCount, setQuestionCount] = useState(3);
-
   const [loading, setLoading] = useState(false);
   const [generatedExercises, setGeneratedExercises] = useState([]);
 
@@ -20,7 +20,7 @@ export default function ExerciseCreator() {
     setTopic(CHEMISTRY_TOPICS[newGrade][0]);
   };
 
-  // Gọi AI tạo bộ bài tập Hóa học theo đúng dạng bài và trình độ học sinh
+  // Gọi AI tạo bộ bài tập Hóa học
   const handleCreateExercises = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -34,21 +34,30 @@ export default function ExerciseCreator() {
       });
       setGeneratedExercises(res.exercises);
     } catch (err) {
-      // Bộ bài tập Hóa học mẫu theo đúng dạng bài giáo viên chọn khi chạy độc lập
       if (exerciseType === 'MULTIPLE_CHOICE') {
         setGeneratedExercises([
           {
             id: 1,
             typeLabel: 'Trắc nghiệm 4 lựa chọn',
-            question: `[Lớp ${grade} - ${topic}] Chất nào sau đây thuộc loại hợp chất điển hình trong chủ đề ${topic}?`,
-            options: ['A. CH3COOC2H5 (Ethyl acetate)', 'B. NaCl (Sodium chloride)', 'C. H2SO4 (Sulfuric acid)', 'D. KOH (Potassium hydroxide)'],
+            question: `[Lớp ${grade} - ${topic}] Chất nào sau đây thuộc loại hợp chất điển hình trong chuyên đề ${topic}?`,
+            options: [
+              'A. CH3COOC2H5 (Ethyl acetate)',
+              'B. NaCl (Sodium chloride)',
+              'C. H2SO4 (Sulfuric acid)',
+              'D. KOH (Potassium hydroxide)',
+            ],
             answer: 'Đáp án đúng: A. Giải thích: CH3COOC2H5 là hợp chất tiêu biểu dùng để minh họa phản ứng thủy phân.',
           },
           {
             id: 2,
             typeLabel: 'Trắc nghiệm 4 lựa chọn',
-            question: `[Lớp ${grade} - ${topic}] Phát biểu nào sau đây là đúng về tính chất hóa học đặc trưng của chủ đề ${topic}?`,
-            options: ['A. Tham gia phản ứng đặc trưng tạo sản phẩm mới', 'B. Không phản ứng ở mọi điều kiện', 'C. Chỉ tồn tại ở trạng thái khí', 'D. Không tan trong mọi dung môi hữu cơ'],
+            question: `[Lớp ${grade} - ${topic}] Phát biểu nào sau đây đúng về tính chất hóa học đặc trưng của ${topic}?`,
+            options: [
+              'A. Tham gia phản ứng đặc trưng tạo sản phẩm mới',
+              'B. Không phản ứng ở mọi điều kiện',
+              'C. Chỉ tồn tại ở trạng thái khí',
+              'D. Không tan trong mọi dung môi hữu cơ',
+            ],
             answer: 'Đáp án đúng: A. Giải thích: Dựa theo tính chất nhóm chức trong chương trình Hóa học THPT.',
           },
         ]);
@@ -57,7 +66,7 @@ export default function ExerciseCreator() {
           {
             id: 1,
             typeLabel: 'Điền khuyết phương trình & khái niệm',
-            question: `[Lớp ${grade} - ${topic}] Điền công thức hóa học thích hợp vào chỗ trống: CH3COOH + C2H5OH (H2SO4 đặc, t°) <===> (1)........... + (2)...........`,
+            question: `[Lớp ${grade} - ${topic}] Điền công thức thích hợp vào chỗ trống: CH3COOH + C2H5OH (H2SO4 đặc, t°) <===> (1)........... + (2)...........`,
             options: [],
             answer: 'Đáp án điền từ: (1) CH3COOC2H5 (Ethyl acetate) ; (2) H2O (Nước).',
           },
@@ -67,9 +76,9 @@ export default function ExerciseCreator() {
           {
             id: 1,
             typeLabel: 'Tự luận trả lời ngắn',
-            question: `[Lớp ${grade} - ${topic}] Nêu hiện tượng hóa học xảy ra và viết phương trình phản ứng minh họa cho bài học "${topic}".`,
+            question: `[Lớp ${grade} - ${topic}] Nêu hiện tượng hóa học xảy ra và viết phương trình minh họa cho chủ đề "${topic}".`,
             options: [],
-            answer: 'Hướng dẫn chấm: Học sinh nêu đúng hiện tượng thực nghiệm (0,5 điểm) và viết cân bằng đúng phương trình hóa học (0,5 điểm).',
+            answer: 'Hướng dẫn chấm: Nêu đúng hiện tượng thực nghiệm (0,5 điểm) và cân bằng đúng phương trình (0,5 điểm).',
           },
         ]);
       }
@@ -79,20 +88,39 @@ export default function ExerciseCreator() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-        <h2 className="text-xl font-bold text-slate-800">Tạo Bài Tập Hóa Học Thông Minh Bằng AI</h2>
-        <p className="text-sm text-slate-500 mt-1">
-          Tự động sinh bài tập theo chủ đề, mục tiêu học tập và trình độ học sinh (Hỗ trợ Trắc nghiệm, Điền từ, Trả lời ngắn)
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+      {/* Header */}
+      <div className="glass-panel" style={{ padding: '24px 28px', borderRadius: 20 }}>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>
+          Tạo Bài tập Hóa học Thông minh (AI Generator)
+        </h1>
+        <p style={{ color: '#64748b', margin: '6px 0 0 0', fontSize: '0.95rem' }}>
+          Sinh tự động câu hỏi Trắc nghiệm, Điền khuyết phương trình và Tự luận trả lời ngắn theo chuyên đề.
         </p>
+      </div>
 
-        <form onSubmit={handleCreateExercises} className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* Form Cấu hình Sinh Bài tập */}
+      <form
+        onSubmit={handleCreateExercises}
+        style={{
+          background: '#ffffff',
+          padding: 26,
+          borderRadius: 20,
+          border: '1px solid #e2e8f0',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 18,
+        }}
+      >
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Khối lớp</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: 6 }}>
+              Khối lớp THPT
+            </label>
             <select
               value={grade}
               onChange={(e) => handleGradeChange(e.target.value)}
-              className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm bg-white"
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontWeight: 700 }}
             >
               <option value="10">Hóa học Lớp 10</option>
               <option value="11">Hóa học Lớp 11</option>
@@ -101,14 +129,16 @@ export default function ExerciseCreator() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Chủ đề Hóa học</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: 6 }}>
+              Chuyên đề Hóa học
+            </label>
             <select
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm bg-white"
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontWeight: 600 }}
             >
-              {CHEMISTRY_TOPICS[grade].map((t, idx) => (
-                <option key={idx} value={t}>
+              {CHEMISTRY_TOPICS[grade].map((t) => (
+                <option key={t} value={t}>
                   {t}
                 </option>
               ))}
@@ -116,11 +146,13 @@ export default function ExerciseCreator() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Trình độ / Mức độ tư duy</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: 6 }}>
+              Mức độ nhận thức
+            </label>
             <select
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
-              className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm bg-white"
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontWeight: 700 }}
             >
               {DIFFICULTY_LEVELS.map((lv) => (
                 <option key={lv.value} value={lv.value}>
@@ -131,65 +163,79 @@ export default function ExerciseCreator() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Định dạng bài tập</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: 6 }}>
+              Dạng bài tập
+            </label>
             <select
               value={exerciseType}
               onChange={(e) => setExerciseType(e.target.value)}
-              className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm bg-white"
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontWeight: 700 }}
             >
               <option value="MULTIPLE_CHOICE">Trắc nghiệm 4 lựa chọn</option>
-              <option value="FILL_BLANK">Điền từ / Phương trình</option>
+              <option value="FILL_BLANK">Điền khuyết phương trình</option>
               <option value="SHORT_ANSWER">Tự luận trả lời ngắn</option>
             </select>
           </div>
 
-          <div className="md:col-span-4 flex items-center justify-between pt-2">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-slate-700">Số lượng câu cần tạo:</label>
-              <input
-                type="number"
-                min={1}
-                max={20}
-                value={questionCount}
-                onChange={(e) => setQuestionCount(e.target.value)}
-                className="w-20 px-3 py-1.5 border border-slate-300 rounded-lg text-sm"
-              />
-            </div>
-            <Button type="submit" disabled={loading}>
-              Tạo Bài Tập Thông Minh
-            </Button>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: 6 }}>
+              Số lượng câu hỏi
+            </label>
+            <input
+              type="number"
+              min="1"
+              max="20"
+              value={questionCount}
+              onChange={(e) => setQuestionCount(e.target.value)}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontWeight: 800 }}
+            />
           </div>
-        </form>
-      </div>
+        </div>
 
-      {loading && <LoadingSpinner message="Gemini AI đang thiết kế bài tập Hóa học và lời giải chi tiết..." />}
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary"
+            style={{ padding: '12px 26px', borderRadius: 12 }}
+          >
+            {loading ? 'Gemini AI đang sinh bài tập...' : 'Sinh Bộ Bài tập bằng AI'}
+          </button>
+        </div>
+      </form>
 
-      {/* Danh sách bài tập được AI tạo ra */}
-      {generatedExercises.length > 0 && !loading && (
-        <div className="space-y-4">
-          {generatedExercises.map((item, index) => (
-            <div key={item.id || index} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between mb-2">
-                <span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded text-xs font-semibold">
-                  Câu {index + 1} - {item.typeLabel}
+      {/* Hiển thị kết quả Bài tập đã sinh */}
+      {generatedExercises.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {generatedExercises.map((ex, idx) => (
+            <div key={ex.id || idx} className="glass-panel" style={{ padding: 24, borderRadius: 20 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <span style={{ background: '#e0e7ff', color: '#4338ca', padding: '4px 12px', borderRadius: 12, fontSize: '0.78rem', fontWeight: 800 }}>
+                  Câu {idx + 1} • {ex.typeLabel}
                 </span>
-                <span className="text-xs text-slate-500">Mức độ: {difficulty}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${ex.question}\n${ex.options?.join('\n') || ''}\n${ex.answer}`);
+                    alert('Đã sao chép bài tập vào bộ nhớ tạm!');
+                  }}
+                  style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid #cbd5e1', background: '#ffffff', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Sao chép câu này
+                </button>
               </div>
-
-              <p className="text-sm font-bold text-slate-800 mt-2">{item.question}</p>
-
-              {item.options && item.options.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3">
-                  {item.options.map((opt, i) => (
-                    <div key={i} className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700">
+              <p style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', margin: '0 0 12px 0' }}>{ex.question}</p>
+              {ex.options && ex.options.length > 0 && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8, marginBottom: 12 }}>
+                  {ex.options.map((opt, oIdx) => (
+                    <div key={oIdx} style={{ background: '#ffffff', padding: '9px 12px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: '0.88rem' }}>
                       {opt}
                     </div>
                   ))}
                 </div>
               )}
-
-              <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 font-medium">
-                {item.answer}
+              <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: 12, borderRadius: 10, fontSize: '0.86rem', color: '#065f46', fontWeight: 600 }}>
+                {ex.answer}
               </div>
             </div>
           ))}

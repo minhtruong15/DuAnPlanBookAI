@@ -1,39 +1,44 @@
+// File: frontend/src/pages/auth/LoginPage.jsx
+// Chức năng: Trang Đăng nhập đồng bộ giao diện từ Login.jsx của PlanbookAI-main, tuân thủ Luật 7 (Code sạch 100%, không icon/emoji)
+
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export default function LoginPage() {
-  // Khai báo các biến lưu nội dung người dùng gõ vào ô Email, Password và thông báo lỗi
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  
-  // Lấy hàm login và loginAsDemoRole từ kho AuthContext
+  const [loading, setLoading] = useState(false);
+
   const { login, loginAsDemoRole } = useAuth();
-  // Công cụ chuyển hướng trang bằng code
   const navigate = useNavigate();
 
-  // Hàm điều hướng người dùng về đúng trang chủ của từng Role sau khi đăng nhập
+  // Điều hướng về đúng cổng của từng Role sau khi đăng nhập
   const redirectByRole = (role) => {
-    if (role === 'ADMIN') navigate('/admin/users');
+    if (role === 'ADMIN') navigate('/admin/revenue');
     else if (role === 'MANAGER') navigate('/manager/packages');
     else if (role === 'STAFF') navigate('/staff/lesson-plans');
     else navigate('/teacher/workspace');
   };
 
-  // Xử lý khi người dùng bấm nút "Đăng nhập" bằng tài khoản thật từ Backend
+  // Xử lý đăng nhập chính thức
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Ngăn trình duyệt tự tải lại trang
+    e.preventDefault();
     setError('');
+    setLoading(true);
     try {
-      const loggedInUser = await login(email, password);
+      const loggedInUser = await login(email.trim(), password.trim());
       redirectByRole(loggedInUser.role);
     } catch (err) {
-      setError(err.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại Email/Mật khẩu hoặc dùng nút Demo bên dưới.');
+      setError(err.message || 'Email hoặc mật khẩu không đúng');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Xử lý khi bấm vào 1 trong 4 nút Đăng nhập nhanh theo Actor
+  // Xử lý đăng nhập nhanh 4 vai trò phục vụ kiểm thử
   const handleQuickDemo = (role) => {
     const demoUser = loginAsDemoRole(role);
     redirectByRole(demoUser.role);
@@ -41,91 +46,216 @@ export default function LoginPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-slate-800 mb-2">Đăng nhập hệ thống</h2>
-      <p className="text-sm text-slate-500 mb-6">Chào mừng thầy/cô quay trở lại cổng PlanbookAI</p>
+      {/* Tiêu đề trang Đăng nhập giống hệt PlanbookAI-main */}
+      <div style={{ textAlign: 'center', marginBottom: 28 }}>
+        <div
+          style={{
+            display: 'inline-block',
+            padding: '6px 16px',
+            background: 'var(--primary-light)',
+            color: 'var(--primary)',
+            borderRadius: 20,
+            fontSize: '0.78rem',
+            fontWeight: 800,
+            marginBottom: 12,
+          }}
+        >
+          HỆ THỐNG GIÁO DỤC THPT HÓA HỌC
+        </div>
+        <h1 style={{ fontSize: '1.9rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
+          PlanbookAI
+        </h1>
+        <p style={{ color: 'var(--text-muted)', marginTop: 8, fontSize: '0.95rem' }}>
+          Cổng công cụ AI Dành cho Giáo viên
+        </p>
+      </div>
 
-      {/* Hiển thị hộp cảnh báo đỏ nếu đăng nhập bị lỗi */}
+      {/* Hộp báo lỗi */}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg">
+        <div
+          style={{
+            background: '#fee2e2',
+            color: '#ef4444',
+            padding: '10px 14px',
+            borderRadius: 10,
+            marginBottom: 18,
+            fontSize: '0.88rem',
+            fontWeight: 600,
+          }}
+        >
           {error}
         </div>
       )}
 
-      {/* Form nhập Email và Mật khẩu */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Biểu mẫu Đăng nhập */}
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Email giáo viên / Quản trị</label>
+          <label style={{ display: 'block', marginBottom: 6, fontSize: '0.88rem', fontWeight: 600 }}>
+            Email đăng nhập
+          </label>
           <input
             type="email"
             required
+            placeholder="VD: teacher@planbookai.vn"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="teacher@planbookai.vn"
-            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            style={{
+              width: '100%',
+              padding: '12px 14px',
+              borderRadius: 12,
+              border: '1px solid var(--border-color)',
+              outline: 'none',
+              fontSize: '0.95rem',
+            }}
           />
         </div>
+
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Mật khẩu</label>
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+          <label style={{ display: 'block', marginBottom: 6, fontSize: '0.88rem', fontWeight: 600 }}>
+            Mật khẩu
+          </label>
+          <div style={{ position: 'relative' }}>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              required
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 60px 12px 14px',
+                borderRadius: 12,
+                border: '1px solid var(--border-color)',
+                outline: 'none',
+                fontSize: '0.95rem',
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: 'absolute',
+                right: 12,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                color: 'var(--text-muted)',
+              }}
+            >
+              {showPassword ? 'Ẩn' : 'Hiện'}
+            </button>
+          </div>
         </div>
+
         <button
           type="submit"
-          className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
+          disabled={loading}
+          className="btn-primary"
+          style={{
+            width: '100%',
+            padding: 13,
+            borderRadius: 12,
+            marginTop: 6,
+            opacity: loading ? 0.7 : 1,
+          }}
         >
-          Đăng nhập
+          {loading ? 'Đang xác thực...' : 'Đăng nhập hệ thống'}
         </button>
       </form>
 
-      {/* Khu vực Đăng nhập nhanh 4 Actors phục vụ kiểm thử và bảo vệ đồ án */}
-      <div className="mt-6 pt-6 border-t border-slate-200">
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 text-center">
-          Trải nghiệm nhanh theo 4 Tác nhân (4 Actors)
-        </p>
-        <div className="grid grid-cols-2 gap-2">
+      {/* Liên kết sang trang Đăng ký */}
+      <div style={{ textAlign: 'center', marginTop: 18, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+        Chưa có tài khoản?{' '}
+        <Link to="/register" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>
+          Tạo tài khoản mới
+        </Link>
+      </div>
+
+      {/* Khu vực truy cập nhanh 4 Actors phục vụ kiểm thử đồ án (Sạch 100%, không emoji) */}
+      <div style={{ marginTop: 22, paddingTop: 18, borderTop: '1px solid var(--border-color)' }}>
+        <div
+          style={{
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            color: 'var(--text-muted)',
+            textTransform: 'uppercase',
+            textAlign: 'center',
+            marginBottom: 10,
+          }}
+        >
+          Truy cập nhanh 4 Vai trò (Demo)
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           <button
             type="button"
             onClick={() => handleQuickDemo('TEACHER')}
-            className="p-2 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100"
+            style={{
+              padding: '8px 10px',
+              borderRadius: 10,
+              border: '1px solid #bae6fd',
+              background: '#e0f2fe',
+              color: '#0369a1',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
           >
-            👨‍🏫 Vào vai Teacher
+            Vào vai Teacher
           </button>
           <button
             type="button"
             onClick={() => handleQuickDemo('STAFF')}
-            className="p-2 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100"
+            style={{
+              padding: '8px 10px',
+              borderRadius: 10,
+              border: '1px solid #a7f3d0',
+              background: '#ecfdf5',
+              color: '#047857',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
           >
-            📝 Vào vai Staff
+            Vào vai Staff
           </button>
           <button
             type="button"
             onClick={() => handleQuickDemo('MANAGER')}
-            className="p-2 text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-100"
+            style={{
+              padding: '8px 10px',
+              borderRadius: 10,
+              border: '1px solid #bfdbfe',
+              background: '#eff6ff',
+              color: '#1d4ed8',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
           >
-            💼 Vào vai Manager
+            Vào vai Manager
           </button>
           <button
             type="button"
             onClick={() => handleQuickDemo('ADMIN')}
-            className="p-2 text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 rounded-lg hover:bg-purple-100"
+            style={{
+              padding: '8px 10px',
+              borderRadius: 10,
+              border: '1px solid #fecaca',
+              background: '#fef2f2',
+              color: '#b91c1c',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
           >
-            🛡️ Vào vai Admin
+            Vào vai Admin
           </button>
         </div>
       </div>
-
-      <p className="mt-6 text-center text-sm text-slate-600">
-        Chưa có tài khoản Giáo viên?{' '}
-        <Link to="/register" className="text-indigo-600 font-semibold hover:underline">
-          Đăng ký ngay
-        </Link>
-      </p>
     </div>
   );
 }
