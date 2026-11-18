@@ -7,7 +7,7 @@ import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import ProtectedRoute from './components/guards/ProtectedRoute';
 
-// Nhập trọn bộ 7 màn hình của Actor TEACHER (Giáo viên Hóa học THPT)
+// 1. Nhập trọn bộ 7 màn hình của Actor TEACHER
 import TeacherWorkspace from './pages/teacher/TeacherWorkspace';
 import LessonPlanAI from './pages/teacher/LessonPlanAI';
 import ExerciseCreator from './pages/teacher/ExerciseCreator';
@@ -16,7 +16,17 @@ import ExamGenerator from './pages/teacher/ExamGenerator';
 import OcrGrading from './pages/teacher/OcrGrading';
 import StudentAnalytics from './pages/teacher/StudentAnalytics';
 
-// Nhập trọn bộ 4 màn hình của Actor ADMIN
+// 2. Nhập trọn bộ 3 màn hình của Actor STAFF
+import SampleLessonPlans from './pages/staff/SampleLessonPlans';
+import StaffQuestionBank from './pages/staff/StaffQuestionBank';
+import PromptTemplates from './pages/staff/PromptTemplates';
+
+// 3. Nhập trọn bộ 3 màn hình của Actor MANAGER
+import PackageManagement from './pages/manager/PackageManagement';
+import OrderManagement from './pages/manager/OrderManagement';
+import ContentApproval from './pages/manager/ContentApproval';
+
+// 4. Nhập trọn bộ 4 màn hình của Actor ADMIN
 import UserManagement from './pages/admin/UserManagement';
 import SystemSettings from './pages/admin/SystemSettings';
 import FrameworkConfig from './pages/admin/FrameworkConfig';
@@ -33,7 +43,7 @@ export default function App() {
             <Route path="/register" element={<RegisterPage />} />
           </Route>
 
-          {/* Khu vực của TEACHER (Đã hoàn thiện đủ 7/7 màn hình chính thức) */}
+          {/* Khu vực của TEACHER (Đầy đủ 7/7 màn hình) */}
           <Route element={<ProtectedRoute allowedRoles={['TEACHER']} />}>
             <Route element={<MainPortalLayout />}>
               <Route path="/teacher/workspace" element={<TeacherWorkspace />} />
@@ -47,35 +57,27 @@ export default function App() {
             </Route>
           </Route>
 
-          {/* Khu vực của STAFF */}
+          {/* Khu vực của STAFF (Đầy đủ 3/3 màn hình) */}
           <Route element={<ProtectedRoute allowedRoles={['STAFF']} />}>
             <Route element={<MainPortalLayout />}>
-              <Route
-                path="/staff/*"
-                element={
-                  <div className="p-6 bg-white rounded-xl border border-slate-200 font-semibold text-blue-700">
-                    Khung giao diện Staff đã sẵn sàng (Sẽ gắn ở bước Thành viên 2 - Tuần 3).
-                  </div>
-                }
-              />
+              <Route path="/staff/lesson-plans" element={<SampleLessonPlans />} />
+              <Route path="/staff/questions" element={<StaffQuestionBank />} />
+              <Route path="/staff/prompts" element={<PromptTemplates />} />
+              <Route path="/staff/*" element={<Navigate to="/staff/lesson-plans" replace />} />
             </Route>
           </Route>
 
-          {/* Khu vực của MANAGER */}
+          {/* Khu vực của MANAGER (Đầy đủ 3/3 màn hình) */}
           <Route element={<ProtectedRoute allowedRoles={['MANAGER']} />}>
             <Route element={<MainPortalLayout />}>
-              <Route
-                path="/manager/*"
-                element={
-                  <div className="p-6 bg-white rounded-xl border border-slate-200 font-semibold text-amber-700">
-                    Khung giao diện Manager đã sẵn sàng (Sẽ gắn ở bước Thành viên 2 - Tuần 3).
-                  </div>
-                }
-              />
+              <Route path="/manager/packages" element={<PackageManagement />} />
+              <Route path="/manager/orders" element={<OrderManagement />} />
+              <Route path="/manager/approvals" element={<ContentApproval />} />
+              <Route path="/manager/*" element={<Navigate to="/manager/packages" replace />} />
             </Route>
           </Route>
 
-          {/* Khu vực của ADMIN (Đã hoàn thiện đủ 4/4 màn hình chính thức) */}
+          {/* Khu vực của ADMIN (Đầy đủ 4/4 màn hình) */}
           <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
             <Route element={<MainPortalLayout />}>
               <Route path="/admin/users" element={<UserManagement />} />
