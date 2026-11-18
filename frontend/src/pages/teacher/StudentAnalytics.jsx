@@ -1,286 +1,273 @@
 // File: frontend/src/pages/teacher/StudentAnalytics.jsx
-// Chuc nang: Phan tich Tien bo tung Hoc sinh, Bieu do Diem so qua cac Ky thi, AI Nhan xet Ca nhan & Xuat Bao cao CSV
-// Nang cap tu StudentAnalytics.jsx cua PlanbookAI-main, tuan thu Luat 7 (Code sach 100%, khong icon/emoji)
+// Chức năng: Phân tích Tiến bộ & Nhận xét Cá nhân hóa cho từng Học sinh với Biểu đồ Đường SVG (LineChart)
+// Đồng bộ 100% bố cục 2 cột .glass-panel từ StudentAnalytics.jsx của PlanbookAI-main, tuân thủ Luật 7 (Code sạch 100%, không icon/emoji)
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 const StudentAnalytics = () => {
-  // Danh sach hoc sinh lop Hoa hoc THPT kem lich su diem 4 bai kiem tra
   const [students, setStudents] = useState([
     {
-      id: "HS10A1-01",
-      name: "Nguyen Minh Anh",
-      className: "10A1 - Chuyen Hoa",
+      id: 'HS10A1-01',
+      name: 'Nguyễn Minh Anh',
+      className: '10A1 - Chuyên Hóa',
       avgScore: 8.9,
-      rank: "Gioi",
-      trend: "+0.8 diem",
+      rank: 'Giỏi',
       history: [
-        { exam: "15 Phut Lan 1 (Cau tao Nguyen tu)", score: 8.5 },
-        { exam: "45 Phut Chuong 1 (Bang Tuan Hoan)", score: 8.8 },
-        { exam: "15 Phut Lan 2 (Lien ket Hoa hoc)", score: 9.0 },
-        { exam: "Thi Giua Ky 1 (Tong hop)", score: 9.2 },
+        { label: 'Kỳ 1', score: 8.5 },
+        { label: 'Kỳ 2', score: 8.8 },
+        { label: 'Kỳ 3', score: 9.0 },
+        { label: 'Kỳ 4', score: 8.9 },
+        { label: 'Kỳ 5', score: 9.3 },
       ],
-      strengths: "Nam vung Cau tao nguyen tu, Lien ket ion va Bao toan electron.",
-      weaknesses: "Can tang toc do giai bai toan tinh % dong vi.",
+      strengths: 'Nắm vững Cấu tạo nguyên tử, Liên kết ion và Bảo toàn electron.',
+      weaknesses: 'Cần tăng tốc độ giải bài toán tính % đồng vị.',
       aiFeedback:
-        "Minh Anh co tu duy Hoa hoc xuat sac, diem so tang deu qua 4 ky kiem tra. Co the boi duong them vao doi tuyen Hoc sinh gioi Hoa 10.",
+        'Em Minh Anh có sự tiến bộ rất đều qua từng kỳ kiểm tra Hóa học. Tư duy tính toán nhanh và chính xác. Giáo viên có thể bồi dưỡng thêm chuyên đề nâng cao để dự thi Học sinh giỏi.',
     },
     {
-      id: "HS10A1-02",
-      name: "Tran Hoang Bao",
-      className: "10A1 - Chuyen Hoa",
-      avgScore: 7.3,
-      rank: "Kha",
-      trend: "+0.4 diem",
+      id: 'HS10A1-02',
+      name: 'Trần Hoàng Bảo',
+      className: '10A1 - Chuyên Hóa',
+      avgScore: 7.4,
+      rank: 'Khá',
       history: [
-        { exam: "15 Phut Lan 1 (Cau tao Nguyen tu)", score: 7.0 },
-        { exam: "45 Phut Chuong 1 (Bang Tuan Hoan)", score: 6.8 },
-        { exam: "15 Phut Lan 2 (Lien ket Hoa hoc)", score: 7.5 },
-        { exam: "Thi Giua Ky 1 (Tong hop)", score: 7.8 },
+        { label: 'Kỳ 1', score: 6.8 },
+        { label: 'Kỳ 2', score: 7.2 },
+        { label: 'Kỳ 3', score: 7.0 },
+        { label: 'Kỳ 4', score: 7.6 },
+        { label: 'Kỳ 5', score: 8.2 },
       ],
-      strengths: "Hieu ro ly thuyet Bang tuan hoan va xac dinh so oxi hoa.",
-      weaknesses: "Hay nham dau khi viet cau hinh electron cua ion Fe2+ va Fe3+.",
+      strengths: 'Hiểu rõ lý thuyết Bảng tuần hoàn và xác định số oxi hóa.',
+      weaknesses: 'Hay nhầm khi viết cấu hình electron của ion kim loại chuyển tiếp Fe2+, Fe3+.',
       aiFeedback:
-        "Hoang Bao co su tien bo ro ret o nua cuoi hoc ky. Giao vien nen giao them 10 cau bai tap Tu luan ve Cau hinh electron phan lop d.",
+        'Em Hoàng Bảo có bứt phá tốt ở 2 kỳ gần nhất. Cần bổ sung thêm 10 bài tập viết cấu hình electron nguyên tử và ion để đạt điểm tối đa phần đại cương.',
     },
     {
-      id: "HS10A1-03",
-      name: "Le Thu Cuc",
-      className: "10A1 - Chuyen Hoa",
-      avgScore: 4.6,
-      rank: "Can phu dao",
-      trend: "-0.5 diem",
+      id: 'HS10A1-03',
+      name: 'Lê Thu Cúc',
+      className: '10A1 - Chuyên Hóa',
+      avgScore: 5.2,
+      rank: 'Cần phụ đạo',
       history: [
-        { exam: "15 Phut Lan 1 (Cau tao Nguyen tu)", score: 5.0 },
-        { exam: "45 Phut Chuong 1 (Bang Tuan Hoan)", score: 4.8 },
-        { exam: "15 Phut Lan 2 (Lien ket Hoa hoc)", score: 4.5 },
-        { exam: "Thi Giua Ky 1 (Tong hop)", score: 4.0 },
+        { label: 'Kỳ 1', score: 5.8 },
+        { label: 'Kỳ 2', score: 5.5 },
+        { label: 'Kỳ 3', score: 5.0 },
+        { label: 'Kỳ 4', score: 4.8 },
+        { label: 'Kỳ 5', score: 5.1 },
       ],
-      strengths: "Nhan biet duoc ky hieu cac nguyen to hoa hoc co ban.",
-      weaknesses: "Hong kien thuc tinh so mol, chua can bang duoc phuong trinh oxi hoa - khu.",
+      strengths: 'Nhận biết được ký hiệu các nguyên tố hóa học cơ bản.',
+      weaknesses: 'Chưa thành thạo quy đổi số mol và cân bằng phương trình oxi hóa - khử.',
       aiFeedback:
-        "Canh bao hoc vu: Diem cua Thu Cuc dang giam dan. Can xep lich phu dao rieng 2 buoi/tuan ve cong thuc tinh so mol va thang bang electron.",
+        'Cảnh báo học vụ: Điểm số của em Thu Cúc có xu hướng giảm. Giáo viên cần xếp lịch phụ đạo 2 buổi/tuần ôn tập lại công thức tính mol và 4 bước thăng bằng electron.',
     },
   ]);
 
-  // State luu hoc sinh dang duoc giao vien chon de xem chi tiet
-  const [selectedStudentId, setSelectedStudentId] = useState("HS10A1-01");
-  const [isGeneratingFeedback, setIsGeneratingFeedback] = useState(false);
+  const [selectedId, setSelectedId] = useState('HS10A1-01');
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const currentStudent =
-    students.find((s) => s.id === selectedStudentId) || students[0];
+  const currentStudent = students.find((s) => s.id === selectedId) || students[0];
 
-  // Ham goi AI tao nhan xet ca nhan hoa moi cho hoc sinh dang chon
+  // Hàm gọi AI tạo lại nhận xét cá nhân hóa mới
   const handleGenerateAIFeedback = () => {
-    setIsGeneratingFeedback(true);
+    setIsGenerating(true);
     setTimeout(() => {
       setStudents((prev) =>
         prev.map((st) =>
           st.id === currentStudent.id
             ? {
                 ...st,
-                aiFeedback: `[AI Phan tich Chuyen sau - ${new Date().toLocaleTimeString(
-                  "vi-VN"
-                )}]: Hoc sinh ${st.name} dat diem TB ${
-                  st.avgScore
-                } (${st.rank}). Diem manh: ${st.strengths} De xuat lo trinh: Giao bo 15 cau trac nghiem chuyen de "${
+                aiFeedback: `[Cập nhật lúc ${new Date().toLocaleTimeString('vi-VN')}] Em ${
+                  st.name
+                } đạt điểm trung bình ${st.avgScore} (${st.rank}). Điểm mạnh: ${
+                  st.strengths
+                } Đề xuất lộ trình 7 ngày tới: Giao bộ 15 câu trắc nghiệm khắc phục phần "${
                   st.weaknesses
-                }" trong 7 ngay toi.`,
+                }".`,
               }
             : st
         )
       );
-      setIsGeneratingFeedback(false);
-    }, 500);
+      setIsGenerating(false);
+    }, 400);
   };
 
-  // Ham xuat bao cao phan tich hoc sinh ra file CSV
-  const handleExportAnalyticsCSV = () => {
-    const headers = "Ma HS,Ho va Ten,Lop,Diem TB,Xep Loai,Xu Huong,Nhan xet AI\n";
+  // Xuất báo cáo CSV có BOM UTF-8 chuẩn tiếng Việt Excel
+  const handleExportCSV = () => {
+    const headers = 'Mã HS,Họ và Tên,Lớp,Điểm TB,Xếp Loại,Nhận xét AI\n';
     const rows = students
-      .map(
-        (s) =>
-          `${s.id},"${s.name}","${s.className}",${s.avgScore},"${s.rank}","${s.trend}","${s.aiFeedback}"`
-      )
-      .join("\n");
-    const blob = new Blob([headers + rows], { type: "text/csv;charset=utf-8;" });
+      .map((s) => `${s.id},"${s.name}","${s.className}",${s.avgScore},"${s.rank}","${s.aiFeedback}"`)
+      .join('\n');
+    const blob = new Blob(['\uFEFF' + headers + rows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = url;
-    link.setAttribute("download", "Bao_Cao_Tien_Bo_Hoc_Sinh_Hoa_THPT.csv");
+    link.setAttribute('download', 'Bao_Cao_Phan_Tich_Hoc_Sinh_PlanbookAI.csv');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
+  // Tính tọa độ cho Biểu đồ Đường SVG (LineChart) giống hệt StudentAnalytics.jsx bản cũ
+  const chartWidth = 520;
+  const chartHeight = 200;
+  const padX = 45;
+  const padY = 24;
+  const usableW = chartWidth - padX * 2;
+  const usableH = chartHeight - padY * 2;
+
+  const points = currentStudent.history.map((item, idx) => {
+    const x = padX + (idx / (currentStudent.history.length - 1)) * usableW;
+    const y = padY + (1 - item.score / 10) * usableH;
+    return { ...item, x, y };
+  });
+
+  const polylinePoints = points.map((p) => `${p.x},${p.y}`).join(' ');
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+      {/* Header giống StudentAnalytics.jsx bản cũ */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">
-            Thong ke Ket qua & Phan tich Tien bo Hoc sinh
+          <h1 style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 4px 0' }}>
+            Phân tích & Feedback Học sinh
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Theo doi bieu do diem so qua tung dot kiem tra Hoa hoc va su dung AI de sinh nhan xet ca nhan hoa
+          <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.95rem' }}>
+            Đánh giá năng lực cá nhân theo biểu đồ tiến bộ và xuất báo cáo tự động
           </p>
         </div>
         <button
-          onClick={handleExportAnalyticsCSV}
-          className="px-5 py-2.5 rounded-lg bg-slate-800 text-white font-bold text-xs hover:bg-slate-900"
+          onClick={handleExportCSV}
+          style={{
+            padding: '10px 18px',
+            borderRadius: 10,
+            border: '1px solid #cbd5e1',
+            background: '#ffffff',
+            color: '#1e293b',
+            fontWeight: 700,
+            fontSize: '0.88rem',
+            cursor: 'pointer',
+          }}
         >
-          [Xuat Bao cao Phan tich CSV]
+          Xuất báo cáo Excel (CSV)
         </button>
       </div>
 
-      {/* Bo cuc 2 Cot: Danh sach Hoc sinh ben trai + Ho so Phan tich Chi tiet ben phai */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* COT TRAI: DANH SACH HOC SINH */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
-          <h2 className="text-base font-bold text-slate-800 border-b pb-3">
-            Danh sach Hoc sinh ({students.length})
-          </h2>
-          <div className="space-y-3">
+      {/* Bố cục 2 cột .glass-panel (1fr 2fr) giống hệt bản cũ */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
+        {/* CỘT TRÁI: DANH SÁCH HỌC SINH */}
+        <div className="glass-panel" style={{ padding: 22, borderRadius: 18 }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-main)', margin: '0 0 16px 0' }}>
+            Danh sách Học sinh ({students.length})
+          </h3>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
             {students.map((st) => {
               const isSelected = st.id === currentStudent.id;
               return (
-                <button
+                <li
                   key={st.id}
-                  onClick={() => setSelectedStudentId(st.id)}
-                  className={`w-full p-4 rounded-xl border text-left transition-all ${
-                    isSelected
-                      ? "bg-blue-50 border-blue-600 shadow-sm"
-                      : "bg-slate-50 border-slate-200 hover:bg-slate-100"
-                  }`}
+                  onClick={() => setSelectedId(st.id)}
+                  style={{
+                    padding: '14px 16px',
+                    background: isSelected ? 'var(--primary-light)' : '#ffffff',
+                    color: isSelected ? 'var(--primary)' : 'var(--text-main)',
+                    border: `1px solid ${isSelected ? 'var(--primary)' : 'var(--border-color)'}`,
+                    borderRadius: 12,
+                    fontWeight: isSelected ? 700 : 500,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-800 text-sm">
-                      {st.name}
-                    </span>
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                        st.avgScore >= 8
-                          ? "bg-emerald-100 text-emerald-800"
-                          : st.avgScore >= 5
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-rose-100 text-rose-800"
-                      }`}
-                    >
-                      TB: {st.avgScore}
-                    </span>
+                  <div>
+                    <div style={{ fontSize: '0.95rem' }}>{st.name}</div>
+                    <div style={{ fontSize: '0.75rem', opacity: 0.8, marginTop: 2 }}>
+                      {st.id} • {st.rank}
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-slate-500 mt-1.5">
-                    <span>Ma HS: {st.id}</span>
-                    <span className="font-semibold">{st.rank}</span>
-                  </div>
-                </button>
+                  <span style={{ fontWeight: 800, fontSize: '1.05rem' }}>{st.avgScore}</span>
+                </li>
               );
             })}
-          </div>
+          </ul>
         </div>
 
-        {/* COT PHAI: BIEU DO TIEN BO & AI NHAN XET CA NHAN */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Thong tin Tong quan cua Hoc sinh dang chon */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
-              <div>
-                <span className="text-xs font-bold uppercase px-2.5 py-1 rounded bg-blue-100 text-blue-800">
-                  {currentStudent.className}
-                </span>
-                <h2 className="text-xl font-bold text-slate-900 mt-2">
-                  Ho so Nang luc Hoa hoc: {currentStudent.name} ({currentStudent.id})
-                </h2>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <div className="text-xs text-slate-500 font-bold uppercase">
-                    Diem Trung Binh
-                  </div>
-                  <div className="text-2xl font-bold text-blue-600">
-                    {currentStudent.avgScore} / 10
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs text-slate-500 font-bold uppercase">
-                    Xu huong
-                  </div>
-                  <div className="text-sm font-bold text-emerald-600">
-                    {currentStudent.trend}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Bieu do Cot Truc quan Tien bo qua 4 Bai Kiem tra */}
-            <div className="space-y-3">
-              <h3 className="text-xs font-bold text-slate-700 uppercase">
-                1. Bieu do Dien bien Diem so qua 4 Bai Kiem tra Hoa hoc
+        {/* CỘT PHẢI: BIỂU ĐỒ ĐƯỜNG TIẾN BỘ & NHẬN XÉT AI (CHIẾM 2 PHẦN TRÊN MÀN HÌNH LỚN) */}
+        <div className="glass-panel" style={{ padding: 24, borderRadius: 18, gridColumn: 'span 1' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+            <div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
+                Tiến bộ của {currentStudent.name}
               </h3>
-              <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-                {currentStudent.history.map((h, i) => (
-                  <div key={i} className="space-y-1">
-                    <div className="flex justify-between text-xs font-semibold text-slate-700">
-                      <span>{h.exam}</span>
-                      <span className="font-bold text-blue-700">{h.score} diem</span>
-                    </div>
-                    <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${
-                          h.score >= 8
-                            ? "bg-emerald-600"
-                            : h.score >= 5
-                            ? "bg-blue-600"
-                            : "bg-rose-600"
-                        }`}
-                        style={{ width: `${h.score * 10}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                {currentStudent.className} • Điểm TB tích lũy: <b>{currentStudent.avgScore}</b>
+              </span>
             </div>
+            <button
+              onClick={handleGenerateAIFeedback}
+              disabled={isGenerating}
+              className="btn-primary"
+              style={{ padding: '8px 16px', borderRadius: 10, fontSize: '0.85rem' }}
+            >
+              {isGenerating ? 'AI đang phân tích...' : 'AI Tạo Nhận xét'}
+            </button>
+          </div>
 
-            {/* Diem manh & Lo hong kien thuc */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
-                <div className="text-xs font-bold text-emerald-800 uppercase mb-1">
-                  Chuyen de Hoa hoc Nam vung
-                </div>
-                <p className="text-xs text-emerald-900 leading-relaxed">
-                  {currentStudent.strengths}
-                </p>
-              </div>
-              <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
-                <div className="text-xs font-bold text-amber-800 uppercase mb-1">
-                  Lo hong Kien thuc Can Bo sung
-                </div>
-                <p className="text-xs text-amber-900 leading-relaxed">
-                  {currentStudent.weaknesses}
-                </p>
-              </div>
-            </div>
+          {/* Biểu đồ Đường SVG LineChart (Trục 0 -> 10 điểm qua 5 kỳ kiểm tra) */}
+          <div style={{ background: '#ffffff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '12px 10px', marginBottom: 20, overflowX: 'auto' }}>
+            <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} style={{ width: '100%', height: 220, display: 'block' }}>
+              {/* Các đường lưới ngang 0, 2.5, 5, 7.5, 10 */}
+              {[0, 2.5, 5, 7.5, 10].map((val) => {
+                const y = padY + (1 - val / 10) * usableH;
+                return (
+                  <g key={val}>
+                    <line x1={padX} y1={y} x2={chartWidth - padX} y2={y} stroke="#e5e7eb" strokeDasharray="4 4" />
+                    <text x={padX - 10} y={y + 4} textAnchor="end" fontSize="11" fill="#94a3b8" fontWeight="600">
+                      {val}
+                    </text>
+                  </g>
+                );
+              })}
 
-            {/* Khu vuc AI Nhan xet Ca nhan hoa */}
-            <div className="p-5 rounded-xl bg-indigo-50 border border-indigo-200 space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold text-indigo-900 uppercase">
-                  2. Nhan xet & Lo trinh On tap Ca nhan hoa tu Tro ly AI
-                </h3>
-                <button
-                  onClick={handleGenerateAIFeedback}
-                  disabled={isGeneratingFeedback}
-                  className="px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 disabled:opacity-50"
-                >
-                  {isGeneratingFeedback
-                    ? "AI dang tong hop..."
-                    : "[AI Tao Nhan xet Ca nhan]"}
-                </button>
-              </div>
-              <p className="text-sm text-indigo-950 leading-relaxed bg-white p-3.5 rounded-lg border border-indigo-100">
-                {currentStudent.aiFeedback}
-              </p>
+              {/* Đường nối biểu đồ tiến bộ màu Indigo */}
+              <polyline fill="none" stroke="#4f46e5" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" points={polylinePoints} />
+
+              {/* Các điểm nút tròn + Nhãn điểm số & tên kỳ */}
+              {points.map((p, idx) => (
+                <g key={idx}>
+                  <circle cx={p.x} cy={p.y} r="6.5" fill="#ffffff" stroke="#4f46e5" strokeWidth="3" />
+                  <text x={p.x} y={p.y - 12} textAnchor="middle" fontSize="12" fontWeight="800" fill="#4338ca">
+                    {p.score}
+                  </text>
+                  <text x={p.x} y={chartHeight - 4} textAnchor="middle" fontSize="11" fontWeight="600" fill="#64748b">
+                    {p.label}
+                  </text>
+                </g>
+              ))}
+            </svg>
+          </div>
+
+          {/* Điểm mạnh & Lỗ hổng kiến thức */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 12, marginBottom: 16 }}>
+            <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: 14, borderRadius: 12 }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#065f46', textTransform: 'uppercase' }}>Điểm mạnh</div>
+              <div style={{ fontSize: '0.85rem', color: '#047857', marginTop: 4 }}>{currentStudent.strengths}</div>
             </div>
+            <div style={{ background: '#fffbeb', border: '1px solid #fde68a', padding: 14, borderRadius: 12 }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#92400e', textTransform: 'uppercase' }}>Cần cải thiện</div>
+              <div style={{ fontSize: '0.85rem', color: '#b45309', marginTop: 4 }}>{currentStudent.weaknesses}</div>
+            </div>
+          </div>
+
+          {/* Khối Nhận xét từ AI giống hệt StudentAnalytics.jsx bản cũ */}
+          <div style={{ background: '#f8fafc', padding: 18, borderRadius: 14, border: '1px solid #e2e8f0' }}>
+            <h4 style={{ fontWeight: 700, margin: '0 0 8px 0', color: '#334155', fontSize: '0.95rem' }}>
+              Nhận xét từ AI:
+            </h4>
+            <p style={{ color: '#475569', fontSize: '0.92rem', lineHeight: 1.6, margin: 0 }}>
+              {currentStudent.aiFeedback}
+            </p>
           </div>
         </div>
       </div>

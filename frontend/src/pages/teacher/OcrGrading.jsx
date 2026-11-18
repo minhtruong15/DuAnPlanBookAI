@@ -1,96 +1,92 @@
 // File: frontend/src/pages/teacher/OcrGrading.jsx
-// Chuc nang: He thong Cham Phieu Trac nghiem Hoa hoc bang AI OCR + Thanh tien trinh + Modal Soi loi & Ban do Dap an
-// Nang cap tu OcrGrading.jsx cua PlanbookAI-main, tuan thu Luat 7 (Code sach 100%, khong icon/emoji)
+// Chức năng: Quản lý Chấm điểm Phiếu Trắc nghiệm Hóa học bằng AI OCR + Thanh tiến trình + Modal Soi lỗi Bản đồ Đáp án
+// Đồng bộ giao diện từ OcrGrading.jsx của PlanbookAI-main, tuân thủ Luật 7 (Code sạch 100%, không icon/emoji)
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 const OcrGrading = () => {
-  // State chon De thi Hoa hoc can cham
-  const [selectedExam, setSelectedExam] = useState("EX-CHEM-101");
-  // State tien trinh quet OCR (0 -> 100%)
+  const [selectedExam, setSelectedExam] = useState('EX-CHEM-101');
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(100);
-  // State luu Bai lam cua hoc sinh dang duoc mo trong Modal "Soi loi chi tiet"
   const [inspectingSheet, setInspectingSheet] = useState(null);
 
-  // Danh sach ket qua cham phieu trac nghiem OCR cua hoc sinh
+  // Danh sách phiếu bài làm đã chấm bằng AI OCR
   const [gradedSheets, setGradedSheets] = useState([
     {
-      id: "OCR-01",
-      studentCode: "HS10A1-01",
-      studentName: "Nguyen Minh Anh",
-      examCode: "101",
+      id: 'OCR-01',
+      studentCode: 'HS10A1-01',
+      studentName: 'Nguyễn Minh Anh',
+      examCode: '101',
       score: 9.0,
       correctCount: 9,
       totalQuestions: 10,
       aiComment:
-        "Nam rat vung kien thuc Cau tao nguyen tu va Bang tuan hoan. Chi nham 1 cau Van dung cao ve tinh phan tram dong vi.",
+        'Nắm rất vững kiến thức Cấu tạo nguyên tử và Bảng tuần hoàn. Chỉ nhầm 1 câu Vận dụng cao về tính phần trăm đồng vị.',
       details: [
-        { q: 1, picked: "B", correct: "B", isCorrect: true, topic: "Hat nhan nguyen tu" },
-        { q: 2, picked: "B", correct: "B", isCorrect: true, topic: "Tinh so hat p, n, e" },
-        { q: 3, picked: "C", correct: "C", isCorrect: true, topic: "Cau hinh electron" },
-        { q: 4, picked: "A", correct: "A", isCorrect: true, topic: "Dong vi hoa hoc" },
-        { q: 5, picked: "D", correct: "D", isCorrect: true, topic: "Chu ky & Nhom" },
-        { q: 6, picked: "B", correct: "B", isCorrect: true, topic: "Ban kinh nguyen tu" },
-        { q: 7, picked: "A", correct: "A", isCorrect: true, topic: "Do am dien" },
-        { q: 8, picked: "C", correct: "C", isCorrect: true, topic: "Lien ket ion" },
-        { q: 9, picked: "B", correct: "B", isCorrect: true, topic: "Bai toan khi H2" },
-        { q: 10, picked: "A", correct: "D", isCorrect: false, topic: "Nguyen tu khoi trung binh" },
+        { q: 1, picked: 'B', correct: 'B', isCorrect: true, topic: 'Hạt nhân nguyên tử' },
+        { q: 2, picked: 'B', correct: 'B', isCorrect: true, topic: 'Tính số hạt p, n, e' },
+        { q: 3, picked: 'C', correct: 'C', isCorrect: true, topic: 'Cấu hình electron' },
+        { q: 4, picked: 'A', correct: 'A', isCorrect: true, topic: 'Đồng vị hóa học' },
+        { q: 5, picked: 'D', correct: 'D', isCorrect: true, topic: 'Chu kỳ & Nhóm' },
+        { q: 6, picked: 'B', correct: 'B', isCorrect: true, topic: 'Bán kính nguyên tử' },
+        { q: 7, picked: 'A', correct: 'A', isCorrect: true, topic: 'Độ âm điện' },
+        { q: 8, picked: 'C', correct: 'C', isCorrect: true, topic: 'Liên kết ion' },
+        { q: 9, picked: 'B', correct: 'B', isCorrect: true, topic: 'Bài toán khí H2' },
+        { q: 10, picked: 'A', correct: 'D', isCorrect: false, topic: 'Nguyên tử khối trung bình' },
       ],
     },
     {
-      id: "OCR-02",
-      studentCode: "HS10A1-02",
-      studentName: "Tran Hoang Bao",
-      examCode: "102",
+      id: 'OCR-02',
+      studentCode: 'HS10A1-02',
+      studentName: 'Trần Hoàng Bảo',
+      examCode: '102',
       score: 7.0,
       correctCount: 7,
       totalQuestions: 10,
       aiComment:
-        "Nam duoc ly thuyet co ban nhung con lung tung o cac cau viet cau hinh electron phan lop d va bai toan dong vi.",
+        'Nắm được lý thuyết cơ bản nhưng còn lúng túng ở các câu viết cấu hình electron phân lớp d và bài toán đồng vị.',
       details: [
-        { q: 1, picked: "A", correct: "A", isCorrect: true, topic: "Hat nhan nguyen tu" },
-        { q: 2, picked: "C", correct: "C", isCorrect: true, topic: "Tinh so hat p, n, e" },
-        { q: 3, picked: "B", correct: "D", isCorrect: false, topic: "Cau hinh electron" },
-        { q: 4, picked: "A", correct: "A", isCorrect: true, topic: "Dong vi hoa hoc" },
-        { q: 5, picked: "B", correct: "B", isCorrect: true, topic: "Chu ky & Nhom" },
-        { q: 6, picked: "C", correct: "C", isCorrect: true, topic: "Ban kinh nguyen tu" },
-        { q: 7, picked: "D", correct: "A", isCorrect: false, topic: "Do am dien" },
-        { q: 8, picked: "B", correct: "B", isCorrect: true, topic: "Lien ket ion" },
-        { q: 9, picked: "A", correct: "A", isCorrect: true, topic: "Bai toan khi H2" },
-        { q: 10, picked: "C", correct: "B", isCorrect: false, topic: "Nguyen tu khoi trung binh" },
+        { q: 1, picked: 'A', correct: 'A', isCorrect: true, topic: 'Hạt nhân nguyên tử' },
+        { q: 2, picked: 'C', correct: 'C', isCorrect: true, topic: 'Tính số hạt p, n, e' },
+        { q: 3, picked: 'B', correct: 'D', isCorrect: false, topic: 'Cấu hình electron' },
+        { q: 4, picked: 'A', correct: 'A', isCorrect: true, topic: 'Đồng vị hóa học' },
+        { q: 5, picked: 'B', correct: 'B', isCorrect: true, topic: 'Chu kỳ & Nhóm' },
+        { q: 6, picked: 'C', correct: 'C', isCorrect: true, topic: 'Bán kính nguyên tử' },
+        { q: 7, picked: 'D', correct: 'A', isCorrect: false, topic: 'Độ âm điện' },
+        { q: 8, picked: 'B', correct: 'B', isCorrect: true, topic: 'Liên kết ion' },
+        { q: 9, picked: 'A', correct: 'A', isCorrect: true, topic: 'Bài toán khí H2' },
+        { q: 10, picked: 'C', correct: 'B', isCorrect: false, topic: 'Nguyên tử khối trung bình' },
       ],
     },
     {
-      id: "OCR-03",
-      studentCode: "HS10A1-03",
-      studentName: "Le Thu Cuc",
-      examCode: "103",
+      id: 'OCR-03',
+      studentCode: 'HS10A1-03',
+      studentName: 'Lê Thu Cúc',
+      examCode: '103',
       score: 4.0,
       correctCount: 4,
       totalQuestions: 10,
       aiComment:
-        "Can phu dao gap: Hoc sinh chua phan biet duoc so hieu nguyen tu Z va so khoi A, sai nhieu cau Thong hieu va Van dung.",
+        'Cần phụ đạo gấp: Học sinh chưa phân biệt được số hiệu nguyên tử Z và số khối A, sai nhiều câu Thông hiểu và Vận dụng.',
       details: [
-        { q: 1, picked: "B", correct: "B", isCorrect: true, topic: "Hat nhan nguyen tu" },
-        { q: 2, picked: "A", correct: "D", isCorrect: false, topic: "Tinh so hat p, n, e" },
-        { q: 3, picked: "C", correct: "A", isCorrect: false, topic: "Cau hinh electron" },
-        { q: 4, picked: "B", correct: "B", isCorrect: true, topic: "Dong vi hoa hoc" },
-        { q: 5, picked: "A", correct: "C", isCorrect: false, topic: "Chu ky & Nhom" },
-        { q: 6, picked: "D", correct: "D", isCorrect: true, topic: "Ban kinh nguyen tu" },
-        { q: 7, picked: "B", correct: "C", isCorrect: false, topic: "Do am dien" },
-        { q: 8, picked: "A", correct: "A", isCorrect: true, topic: "Lien ket ion" },
-        { q: 9, picked: "D", correct: "B", isCorrect: false, topic: "Bai toan khi H2" },
-        { q: 10, picked: "A", correct: "C", isCorrect: false, topic: "Nguyen tu khoi trung binh" },
+        { q: 1, picked: 'B', correct: 'B', isCorrect: true, topic: 'Hạt nhân nguyên tử' },
+        { q: 2, picked: 'A', correct: 'D', isCorrect: false, topic: 'Tính số hạt p, n, e' },
+        { q: 3, picked: 'C', correct: 'A', isCorrect: false, topic: 'Cấu hình electron' },
+        { q: 4, picked: 'B', correct: 'B', isCorrect: true, topic: 'Đồng vị hóa học' },
+        { q: 5, picked: 'A', correct: 'C', isCorrect: false, topic: 'Chu kỳ & Nhóm' },
+        { q: 6, picked: 'D', correct: 'D', isCorrect: true, topic: 'Bán kính nguyên tử' },
+        { q: 7, picked: 'B', correct: 'C', isCorrect: false, topic: 'Độ âm điện' },
+        { q: 8, picked: 'A', correct: 'A', isCorrect: true, topic: 'Liên kết ion' },
+        { q: 9, picked: 'D', correct: 'B', isCorrect: false, topic: 'Bài toán khí H2' },
+        { q: 10, picked: 'A', correct: 'C', isCorrect: false, topic: 'Nguyên tử khối trung bình' },
       ],
     },
   ]);
 
-  // Ham mo phong Tien trinh Quet OCR Hang loat (0% -> 100%)
+  // Chạy mô phỏng tiến trình quét và chấm hàng loạt từ 0% -> 100%
   const handleRunBatchOcrScan = () => {
     setIsScanning(true);
     setScanProgress(0);
-
     let current = 0;
     const timer = setInterval(() => {
       current += 25;
@@ -98,49 +94,47 @@ const OcrGrading = () => {
       if (current >= 100) {
         clearInterval(timer);
         setIsScanning(false);
-        // Them 1 phieu moi vua quet xong vao danh sach
         const newId = `OCR-0${gradedSheets.length + 1}`;
         setGradedSheets((prev) => [
           {
             id: newId,
             studentCode: `HS10A1-0${prev.length + 1}`,
-            studentName: "Pham Quoc Dat (Vua quet OCR)",
-            examCode: "104",
+            studentName: 'Phạm Quốc Đạt (Phiếu mới quét)',
+            examCode: '104',
             score: 8.0,
             correctCount: 8,
             totalQuestions: 10,
             aiComment:
-              "Ket qua quet OCR chinh xac 100%. Hoc sinh lam tot phan Lien ket hoa hoc, can ren them bai toan tinh hieu suat.",
+              'Kết quả quét OCR chính xác 100%. Học sinh làm tốt phần Liên kết hóa học, cần rèn thêm bài toán hiệu suất.',
             details: prev[0].details.map((d, idx) =>
-              idx === 8 ? { ...d, picked: "D", isCorrect: false } : d
+              idx === 8 ? { ...d, picked: 'D', isCorrect: false } : d
             ),
           },
           ...prev,
         ]);
       }
-    }, 350);
+    }, 300);
   };
 
-  // Ham xuat file CSV So diem
+  // Xuất Sổ điểm CSV có BOM UTF-8 để mở bằng Excel tiếng Việt không bị lỗi font
   const handleExportGradebookCSV = () => {
-    const headers = "Ma HS,Ho va Ten,Ma De,So Cau Dung,Diem So,Nhan xet AI\n";
+    const headers = 'Mã HS,Họ và Tên,Mã Đề,Số Câu Đúng,Điểm Số,Nhận xét AI\n';
     const rows = gradedSheets
       .map(
         (s) =>
           `${s.studentCode},"${s.studentName}",${s.examCode},${s.correctCount}/${s.totalQuestions},${s.score},"${s.aiComment}"`
       )
-      .join("\n");
-    const blob = new Blob([headers + rows], { type: "text/csv;charset=utf-8;" });
+      .join('\n');
+    const blob = new Blob(['\uFEFF' + headers + rows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = url;
-    link.setAttribute("download", `So_Diem_OCR_${selectedExam}.csv`);
+    link.setAttribute('download', `So_Diem_OCR_${selectedExam}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  // Tinh cac chi so KPI
   const avgScore = (
     gradedSheets.reduce((acc, s) => acc + s.score, 0) / gradedSheets.length
   ).toFixed(1);
@@ -149,155 +143,145 @@ const OcrGrading = () => {
   const needTutoringCount = gradedSheets.filter((s) => s.score < 5.0).length;
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      <div className="glass-panel" style={{ padding: '24px 28px', borderRadius: 20, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">
-            Cham Phieu Trac nghiem Hoa hoc Tu dong (AI Vision OCR)
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>
+            Quản lý Chấm điểm Phiếu Trắc nghiệm (AI OCR)
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Nhan dien ma de, cham diem hang loat, soi loi tung o dap an va sinh nhan xet nang luc
+          <p style={{ color: '#64748b', margin: '6px 0 0 0', fontSize: '0.95rem' }}>
+            Nhận diện mã đề tự động, chấm điểm hàng loạt, soi lỗi từng ô đáp án Xanh/Đỏ và sinh nhận xét.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div style={{ display: 'flex', gap: 10 }}>
           <button
             onClick={handleExportGradebookCSV}
-            className="px-4 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-100"
+            style={{ padding: '11px 18px', borderRadius: 12, border: '1px solid #cbd5e1', background: '#ffffff', color: '#334155', fontWeight: 700, fontSize: '0.86rem', cursor: 'pointer' }}
           >
-            [Xuat So diem CSV]
+            Xuất Sổ điểm CSV
           </button>
           <button
             onClick={handleRunBatchOcrScan}
             disabled={isScanning}
-            className="px-5 py-2.5 rounded-lg bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 disabled:opacity-50"
+            className="btn-primary"
+            style={{ padding: '11px 20px', borderRadius: 12, opacity: isScanning ? 0.6 : 1 }}
           >
-            {isScanning
-              ? `Dang quet OCR (${scanProgress}%)...`
-              : "+ Quet & Cham Lo Phieu Moi"}
+            {isScanning ? `Đang quét OCR (${scanProgress}%)...` : '+ Quét & Chấm Lô Phiếu Mới'}
           </button>
         </div>
       </div>
 
-      {/* Khu vuc Chon De thi & Thanh tien trinh Quet OCR */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-          <div>
-            <label className="block text-xs font-bold text-slate-600 uppercase mb-1">
-              Chon Ky thi / Bo De Hoa hoc de doi chieu Dap an
-            </label>
-            <select
-              value={selectedExam}
-              onChange={(e) => setSelectedExam(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm font-semibold"
-            >
-              <option value="EX-CHEM-101">
-                [EX-CHEM-101] De Kiem tra Giua Ky 1 - Hoa hoc 10 (Ma 101 - 104)
-              </option>
-              <option value="EX-CHEM-102">
-                [EX-CHEM-102] De Kiem tra 15 Phut - Hoa hoc 12 Chuong Ester
-              </option>
-            </select>
+      {/* Chọn Bộ đề & Thanh tiến trình OCR */}
+      <div style={{ background: '#ffffff', padding: 20, borderRadius: 20, border: '1px solid #e2e8f0', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20, alignItems: 'center' }}>
+        <div>
+          <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: 6 }}>
+            Chọn Kỳ thi / Bộ Đề Hóa học để đối chiếu Đáp án
+          </label>
+          <select
+            value={selectedExam}
+            onChange={(e) => setSelectedExam(e.target.value)}
+            style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #cbd5e1', fontWeight: 700, fontSize: '0.9rem' }}
+          >
+            <option value="EX-CHEM-101">[EX-CHEM-101] Đề Kiểm tra Giữa Kỳ 1 - Hóa học 10 (Mã 101 - 104)</option>
+            <option value="EX-CHEM-102">[EX-CHEM-102] Đề Kiểm tra 15 Phút - Hóa học 12 Chương Ester</option>
+          </select>
+        </div>
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: 700, color: '#475569', marginBottom: 6 }}>
+            <span>Tiến trình AI Vision Engine</span>
+            <span style={{ color: '#10b981' }}>{scanProgress}% Hoàn tất</span>
           </div>
-          <div>
-            <div className="flex justify-between text-xs font-bold text-slate-600 mb-1">
-              <span>Trang thai AI Vision Engine</span>
-              <span>{scanProgress}% Hoan tat</span>
-            </div>
-            <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
-              <div
-                className="h-full bg-emerald-600 transition-all duration-300"
-                style={{ width: `${scanProgress}%` }}
-              />
-            </div>
+          <div style={{ width: '100%', height: 12, background: '#f1f5f9', borderRadius: 8, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+            <div style={{ width: `${scanProgress}%`, height: '100%', background: '#10b981', transition: 'width 0.3s ease' }} />
           </div>
         </div>
       </div>
 
-      {/* 4 The Thong ke KPI Ket qua Cham */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <div className="text-xs font-bold text-slate-500 uppercase">So Phieu Da Cham</div>
-          <div className="text-2xl font-bold text-slate-800 mt-1">
-            {gradedSheets.length} Phieu
+      {/* 4 Thẻ Thống kê glass-panel */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+        {[
+          { label: 'Số Phiếu Đã Chấm', value: `${gradedSheets.length} Phiếu`, color: '#0f172a' },
+          { label: 'Điểm Trung Bình Lớp', value: `${avgScore} / 10`, color: '#2563eb' },
+          { label: 'Tỷ lệ Đạt (>= 5.0)', value: `${passRate}%`, color: '#059669' },
+          { label: 'Cần Phụ đạo (< 5.0)', value: `${needTutoringCount} Học sinh`, color: '#dc2626' },
+        ].map((kpi, i) => (
+          <div key={i} className="glass-panel" style={{ padding: 20, borderRadius: 20 }}>
+            <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>{kpi.label}</div>
+            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: kpi.color, marginTop: 6 }}>{kpi.value}</div>
           </div>
-        </div>
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <div className="text-xs font-bold text-slate-500 uppercase">Diem Trung Binh Lop</div>
-          <div className="text-2xl font-bold text-blue-600 mt-1">{avgScore} / 10</div>
-        </div>
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <div className="text-xs font-bold text-slate-500 uppercase">Ty le Dat (&gt;= 5.0)</div>
-          <div className="text-2xl font-bold text-emerald-600 mt-1">{passRate}%</div>
-        </div>
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <div className="text-xs font-bold text-slate-500 uppercase">Can Phu dao (&lt; 5.0)</div>
-          <div className="text-2xl font-bold text-rose-600 mt-1">
-            {needTutoringCount} Hoc sinh
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Bang Ket qua Cham & Nut "Soi loi bai lam chi tiet" */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-          <h2 className="text-base font-bold text-slate-800">
-            Bang Ket qua Quet Phieu Tra loi Trac nghiem
+      {/* Bảng Kết quả Chấm */}
+      <div style={{ background: '#ffffff', borderRadius: 20, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+        <div style={{ padding: '18px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>
+            Bảng Kết quả Quét Phiếu Trả lời Trắc nghiệm
           </h2>
-          <span className="text-xs text-slate-500">
-            Bam vao [Soi loi bai lam] de xem Ban do Dap an Xanh/Do tung cau
+          <span style={{ fontSize: '0.82rem', color: '#64748b' }}>
+            Bấm "Soi lỗi bài làm" để xem Bản đồ Đáp án Xanh/Đỏ từng câu
           </span>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr className="bg-slate-50 text-xs font-bold text-slate-600 uppercase border-b border-slate-200">
-                <th className="p-4">Ma HS</th>
-                <th className="p-4">Ho va Ten Hoc sinh</th>
-                <th className="p-4">Ma De</th>
-                <th className="p-4">So Cau Dung</th>
-                <th className="p-4">Diem So</th>
-                <th className="p-4">Nhan xet AI</th>
-                <th className="p-4 text-right">Thao tac</th>
+              <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', fontSize: '0.78rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>
+                <th style={{ padding: '14px 20px' }}>Mã HS</th>
+                <th style={{ padding: '14px 20px' }}>Họ và Tên Học sinh</th>
+                <th style={{ padding: '14px 20px' }}>Mã Đề</th>
+                <th style={{ padding: '14px 20px' }}>Số Câu Đúng</th>
+                <th style={{ padding: '14px 20px' }}>Điểm Số</th>
+                <th style={{ padding: '14px 20px' }}>Nhận xét AI</th>
+                <th style={{ padding: '14px 20px', textAlign: 'right' }}>Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-sm">
+            <tbody>
               {gradedSheets.map((sheet) => (
-                <tr key={sheet.id} className="hover:bg-slate-50">
-                  <td className="p-4 font-mono text-xs font-bold text-slate-600">
-                    {sheet.studentCode}
-                  </td>
-                  <td className="p-4 font-bold text-slate-800">{sheet.studentName}</td>
-                  <td className="p-4">
-                    <span className="px-2.5 py-1 rounded bg-slate-100 font-mono text-xs font-bold">
-                      Ma {sheet.examCode}
+                <tr key={sheet.id} style={{ borderBottom: '1px solid #f1f5f9', fontSize: '0.9rem' }}>
+                  <td style={{ padding: '14px 20px', fontFamily: 'monospace', fontWeight: 700, color: '#64748b' }}>{sheet.studentCode}</td>
+                  <td style={{ padding: '14px 20px', fontWeight: 800, color: '#0f172a' }}>{sheet.studentName}</td>
+                  <td style={{ padding: '14px 20px' }}>
+                    <span style={{ background: '#f1f5f9', padding: '4px 10px', borderRadius: 8, fontFamily: 'monospace', fontWeight: 800, fontSize: '0.8rem' }}>
+                      Mã {sheet.examCode}
                     </span>
                   </td>
-                  <td className="p-4 font-semibold text-slate-700">
+                  <td style={{ padding: '14px 20px', fontWeight: 700 }}>
                     {sheet.correctCount} / {sheet.totalQuestions}
                   </td>
-                  <td className="p-4">
+                  <td style={{ padding: '14px 20px' }}>
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        sheet.score >= 8
-                          ? "bg-emerald-100 text-emerald-800"
-                          : sheet.score >= 5
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-rose-100 text-rose-800"
-                      }`}
+                      style={{
+                        background: sheet.score >= 8 ? '#dcfce7' : sheet.score >= 5 ? '#dbeafe' : '#fee2e2',
+                        color: sheet.score >= 8 ? '#166534' : sheet.score >= 5 ? '#1e40af' : '#991b1b',
+                        padding: '4px 12px',
+                        borderRadius: 16,
+                        fontWeight: 800,
+                        fontSize: '0.82rem',
+                      }}
                     >
-                      {sheet.score.toFixed(1)} diem
+                      {sheet.score.toFixed(1)} điểm
                     </span>
                   </td>
-                  <td className="p-4 text-xs text-slate-600 max-w-md">
+                  <td style={{ padding: '14px 20px', fontSize: '0.82rem', color: '#475569', maxWidth: 340 }}>
                     {sheet.aiComment}
                   </td>
-                  <td className="p-4 text-right">
+                  <td style={{ padding: '14px 20px', textAlign: 'right' }}>
                     <button
                       onClick={() => setInspectingSheet(sheet)}
-                      className="px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold hover:bg-indigo-100"
+                      style={{
+                        padding: '8px 14px',
+                        borderRadius: 10,
+                        border: 'none',
+                        background: '#eef2ff',
+                        color: '#4338ca',
+                        fontWeight: 700,
+                        fontSize: '0.8rem',
+                        cursor: 'pointer',
+                      }}
                     >
-                      [Soi loi bai lam]
+                      Soi lỗi bài làm
                     </button>
                   </td>
                 </tr>
@@ -307,90 +291,120 @@ const OcrGrading = () => {
         </div>
       </div>
 
-      {/* CUA SO MODAL: SOI LOI BAI LAM CHI TIET & BAN DO DAP AN XANH / DO */}
+      {/* CỬA SỔ MODAL SOI LỖI BÀI LÀM CHI TIẾT & BẢN ĐỒ ĐÁP ÁN XANH/ĐỎ */}
       {inspectingSheet && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-xl space-y-5 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b pb-4">
+        <div
+          onClick={() => setInspectingSheet(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.55)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+            zIndex: 1000,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#ffffff',
+              borderRadius: 24,
+              maxWidth: 760,
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              padding: 28,
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 18,
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #f1f5f9', paddingBottom: 14 }}>
               <div>
-                <span className="text-xs font-bold uppercase px-2.5 py-1 rounded bg-indigo-100 text-indigo-800">
-                  Chi tiet Phieu OCR: {inspectingSheet.id}
+                <span style={{ background: '#e0e7ff', color: '#4338ca', padding: '4px 10px', borderRadius: 10, fontSize: '0.75rem', fontWeight: 800 }}>
+                  CHI TIẾT PHIẾU OCR: {inspectingSheet.id}
                 </span>
-                <h3 className="text-xl font-bold text-slate-900 mt-1">
-                  Hoc sinh: {inspectingSheet.studentName} ({inspectingSheet.studentCode})
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0f172a', margin: '8px 0 4px 0' }}>
+                  Học sinh: {inspectingSheet.studentName} ({inspectingSheet.studentCode})
                 </h3>
-                <p className="text-xs text-slate-500">
-                  Ma de: {inspectingSheet.examCode} | Ket qua:{" "}
-                  <strong>
-                    {inspectingSheet.correctCount}/{inspectingSheet.totalQuestions} cau dung
-                  </strong>{" "}
-                  ({inspectingSheet.score.toFixed(1)} diem)
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>
+                  Mã đề: {inspectingSheet.examCode} | Kết quả: <b>{inspectingSheet.correctCount}/{inspectingSheet.totalQuestions} câu đúng</b> ({inspectingSheet.score.toFixed(1)} điểm)
                 </p>
               </div>
               <button
                 onClick={() => setInspectingSheet(null)}
-                className="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200"
+                style={{ padding: '7px 14px', borderRadius: 10, border: 'none', background: '#f1f5f9', fontWeight: 700, cursor: 'pointer' }}
               >
-                [Dong cua so]
+                Đóng cửa sổ
               </button>
             </div>
 
-            {/* Ban do Dap an Truc quan (O Xanh = Dung, O Do = Sai) */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold text-slate-700 uppercase">
-                1. Ban do Dap an Tren Phieu To (Xanh = Dung, Do = Sai)
+            {/* Bản đồ Đáp án 10 ô Xanh/Đỏ */}
+            <div>
+              <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', margin: '0 0 10px 0' }}>
+                1. Bản đồ Đáp án trên Phiếu Tô (Xanh = Đúng, Đỏ = Sai)
               </h4>
-              <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(60px, 1fr))', gap: 8 }}>
                 {inspectingSheet.details.map((item) => (
                   <div
                     key={item.q}
-                    className={`p-2.5 rounded-lg text-center border font-bold text-xs ${
-                      item.isCorrect
-                        ? "bg-emerald-50 border-emerald-400 text-emerald-800"
-                        : "bg-rose-50 border-rose-400 text-rose-800"
-                    }`}
+                    style={{
+                      padding: 10,
+                      borderRadius: 10,
+                      textAlign: 'center',
+                      border: `1px solid ${item.isCorrect ? '#4ade80' : '#f87171'}`,
+                      background: item.isCorrect ? '#dcfce7' : '#fee2e2',
+                      color: item.isCorrect ? '#166534' : '#991b1b',
+                      fontWeight: 800,
+                      fontSize: '0.8rem',
+                    }}
                   >
-                    <div>Cau {item.q}</div>
-                    <div className="text-sm mt-0.5">{item.picked}</div>
+                    <div>Câu {item.q}</div>
+                    <div style={{ fontSize: '1rem', marginTop: 2 }}>{item.picked}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Bang Doi chieu Tung Cau Hoi */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold text-slate-700 uppercase">
-                2. Bang Doi chieu Dap an & Phan tich Chu de Kien thuc
+            {/* Bảng Đối chiếu chi tiết */}
+            <div>
+              <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', margin: '0 0 10px 0' }}>
+                2. Bảng Đối chiếu Đáp án & Chuyên đề Kiến thức
               </h4>
-              <div className="border border-slate-200 rounded-xl overflow-hidden">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 font-bold text-slate-600 border-b">
-                    <tr>
-                      <th className="p-3">Cau</th>
-                      <th className="p-3">Chuyen de Hoa hoc</th>
-                      <th className="p-3">Hoc sinh Khoanh</th>
-                      <th className="p-3">Dap an Dung</th>
-                      <th className="p-3">Ket qua</th>
+              <div style={{ border: '1px solid #e2e8f0', borderRadius: 14, overflow: 'hidden' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.84rem' }}>
+                  <thead>
+                    <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', fontWeight: 800, color: '#64748b' }}>
+                      <th style={{ padding: 10 }}>Câu</th>
+                      <th style={{ padding: 10 }}>Chuyên đề Hóa học</th>
+                      <th style={{ padding: 10 }}>Học sinh Khoanh</th>
+                      <th style={{ padding: 10 }}>Đáp án Đúng</th>
+                      <th style={{ padding: 10 }}>Kết quả</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody>
                     {inspectingSheet.details.map((d) => (
-                      <tr key={d.q}>
-                        <td className="p-3 font-bold">Cau {d.q}</td>
-                        <td className="p-3 text-slate-700">{d.topic}</td>
-                        <td className="p-3 font-mono font-bold">{d.picked}</td>
-                        <td className="p-3 font-mono font-bold text-emerald-700">
-                          {d.correct}
-                        </td>
-                        <td className="p-3">
+                      <tr key={d.q} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: 10, fontWeight: 700 }}>Câu {d.q}</td>
+                        <td style={{ padding: 10 }}>{d.topic}</td>
+                        <td style={{ padding: 10, fontFamily: 'monospace', fontWeight: 800 }}>{d.picked}</td>
+                        <td style={{ padding: 10, fontFamily: 'monospace', fontWeight: 800, color: '#059669' }}>{d.correct}</td>
+                        <td style={{ padding: 10 }}>
                           <span
-                            className={`px-2 py-0.5 rounded font-bold ${
-                              d.isCorrect
-                                ? "bg-emerald-100 text-emerald-800"
-                                : "bg-rose-100 text-rose-800"
-                            }`}
+                            style={{
+                              padding: '3px 8px',
+                              borderRadius: 6,
+                              fontWeight: 800,
+                              fontSize: '0.76rem',
+                              background: d.isCorrect ? '#dcfce7' : '#fee2e2',
+                              color: d.isCorrect ? '#166534' : '#991b1b',
+                            }}
                           >
-                            {d.isCorrect ? "Chinh xac" : "Sai"}
+                            {d.isCorrect ? 'Chính xác' : 'Sai'}
                           </span>
                         </td>
                       </tr>
@@ -400,10 +414,8 @@ const OcrGrading = () => {
               </div>
             </div>
 
-            {/* Nhan xet AI */}
-            <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-900">
-              <strong>AI Nhan xet & Goi y Phu dao: </strong>
-              {inspectingSheet.aiComment}
+            <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', padding: 14, borderRadius: 14, fontSize: '0.88rem', color: '#1e3a8a' }}>
+              <b>AI Nhận xét & Gợi ý Phụ đạo:</b> {inspectingSheet.aiComment}
             </div>
           </div>
         </div>
