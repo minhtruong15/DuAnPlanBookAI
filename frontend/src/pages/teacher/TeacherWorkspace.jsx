@@ -1,232 +1,266 @@
-import React, { useState } from 'react';
-import Button from '../../components/common/Button';
-import Modal from '../../components/common/Modal';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
-import { teacherService } from '../../services/teacherService';
+// File: frontend/src/pages/teacher/TeacherWorkspace.jsx
+// Chuc nang: Khong gian lam viec Tong quan cua Giao vien Hoa hoc + Quan ly & Nang cap Goi Dich vu VIP (Subscription)
+// Nang cap tu TeacherDashboard & SubscriptionManager cua PlanbookAI-main, tuan thu Luat 7 (Code sach 100%, khong icon/emoji)
 
-export default function TeacherWorkspace() {
-  // Danh sách các thư mục lưu trữ học liệu cá nhân của Giáo viên Hóa học
-  const [folders, setFolders] = useState([
-    { id: 1, folderName: 'Giao an Hoa hoc 10 - Chuong trinh GDPT 2018', itemCount: 4, updatedAt: '15/11/2026' },
-    { id: 2, folderName: 'Chuyen de Huu co Hoa 11 - Hydrocarbon', itemCount: 3, updatedAt: '16/11/2026' },
-    { id: 3, folderName: 'Ngan hang De on thi Tot nghiep Hoa 12', itemCount: 6, updatedAt: '18/11/2026' },
-  ]);
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
-  // Danh sách tài liệu dạy học & tài liệu đã số hóa bằng OCR trong Workspace
-  const [documents, setDocuments] = useState([
+const TeacherWorkspace = () => {
+  // State luu Goi dich vu hien tai cua Giao vien ('BASIC', 'PRO', 'DIAMOND')
+  const [currentPlan, setCurrentPlan] = useState("PRO");
+  // State luu so du Credit AI
+  const [aiCredits, setAiCredits] = useState(480);
+  // State thong bao nang cap goi thanh cong
+  const [upgradeMessage, setUpgradeMessage] = useState("");
+
+  // Danh sach 3 Goi Dich vu VIP cho Giao vien Hoa hoc THPT
+  const packages = [
     {
-      id: 101,
-      title: 'Ke hoach bai day: Cau tao nguyen tu (Hoa 10)',
-      folderName: 'Giao an Hoa hoc 10 - Chuong trinh GDPT 2018',
-      type: 'Giao an AI',
-      createdAt: '15/11/2026',
+      code: "BASIC",
+      name: "Goi Co ban (Starter)",
+      price: "0 VND / Thang",
+      credits: 50,
+      features: [
+        "50 Credit AI / thang de soan Giao an 5512",
+        "Tao toi da 5 De thi Hoa hoc / thang",
+        "Cham thu nghiem 30 Phieu trac nghiem OCR",
+      ],
     },
     {
-      id: 102,
-      title: 'Tai lieu so hoa OCR: Bang tinh tan va Day dien hoa kim loai',
-      folderName: 'Ngan hang De on thi Tot nghiep Hoa 12',
-      type: 'Tai lieu OCR',
-      createdAt: '17/11/2026',
+      code: "PRO",
+      name: "Goi Vang - Pro Hoa hoc",
+      price: "99.000 VND / Thang",
+      credits: 500,
+      features: [
+        "500 Credit AI / thang + Mo khoa Kho Giao an Mau He thong",
+        "Tron 4 Ma de (101-104) & Ma tran nhan thuc khong gioi han",
+        "Cham 1.000 Phieu OCR / thang + Ban do Soi loi Xanh/Do",
+      ],
     },
-  ]);
+    {
+      code: "DIAMOND",
+      name: "Goi Kim Cuong - To Bo Mon",
+      price: "199.000 VND / Thang",
+      credits: 2000,
+      features: [
+        "2.000 Credit AI / thang (Khong gioi han Soan giao an & Bai tap)",
+        "Dung chung Ngan hang Cau hoi Hoa hoc THPT toan truong",
+        "Cham Phieu OCR hang loat khong gioi han + Xuat So diem CSV",
+      ],
+    },
+  ];
 
-  // State điều khiển hộp thoại tạo thư mục mới
-  const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
-  const [newFolderName, setNewFolderName] = useState('');
-
-  // State điều khiển tính năng Quét OCR số hóa tài liệu giấy
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [ocrLoading, setOcrLoading] = useState(false);
-  const [ocrTextResult, setOcrTextResult] = useState('');
-
-  // Hàm xử lý tạo thư mục mới trong Workspace cá nhân
-  const handleCreateFolder = async (e) => {
-    e.preventDefault();
-    if (!newFolderName.trim()) return;
-
-    try {
-      await teacherService.createFolder(newFolderName);
-    } catch (err) {
-      // Nếu Backend chưa bật, vẫn cập nhật ngay trên giao diện để trải nghiệm mượt mà
-    }
-
-    const newFolder = {
-      id: Date.now(),
-      folderName: newFolderName,
-      itemCount: 0,
-      updatedAt: new Date().toLocaleDateString('vi-VN'),
-    };
-    setFolders([newFolder, ...folders]);
-    setNewFolderName('');
-    setIsFolderModalOpen(false);
-  };
-
-  // Hàm xử lý quét OCR chuyển ảnh chụp tài liệu giấy thành văn bản Hóa học có thể chỉnh sửa
-  const handleDigitizeOcr = async () => {
-    if (!selectedFile) {
-      alert('Vui lòng chọn file ảnh chụp tài liệu giấy trước khi quét OCR.');
-      return;
-    }
-
-    setOcrLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append('documentImage', selectedFile);
-      const res = await teacherService.digitizeDocumentOcr(formData);
-      setOcrTextResult(res.extractedText);
-    } catch (err) {
-      // Kết quả OCR mẫu chuẩn môn Hóa học khi chạy độc lập
-      setOcrTextResult(
-        'KET QUA SO HOA TAI LIEU GIAY BANG GEMINI VISION OCR:\n\n' +
-        'Chuyen de: ESTER - LIPID (Hoa hoc 12)\n' +
-        '1. Khai niem: Khi thay nhom OH o nhom carboxyl (-COOH) cua carboxylic acid bang nhom OR thi thu duoc ester.\n' +
-        '2. Cong thuc chung cua ester no, don chuc, mach ho: CnH2nO2 (n >= 2).\n' +
-        '3. Phan ung thuy phan trong moi truong kiem (Phan ung xa phong hoa):\n' +
-        '   RCOOR\' + NaOH (t°) -> RCOONa + R\'OH\n' +
-        '4. Bai tap van dung trích tu tai lieu giay: Đun nong 0,1 mol ethyl acetate voi dung dich NaOH du thu duoc 8,2 gam muoi sodium acetate.'
-      );
-    } finally {
-      setOcrLoading(false);
-    }
-  };
-
-  // Hàm lưu văn bản vừa quét OCR vào danh sách tài liệu Workspace
-  const handleSaveOcrToWorkspace = () => {
-    if (!ocrTextResult) return;
-    const newDoc = {
-      id: Date.now(),
-      title: `Tai lieu so hoa OCR: ${selectedFile ? selectedFile.name : 'Tai lieu Hoa hoc'}`,
-      folderName: folders[0]?.folderName || 'Thu muc chung',
-      type: 'Tai lieu OCR',
-      createdAt: new Date().toLocaleDateString('vi-VN'),
-    };
-    setDocuments([newDoc, ...documents]);
-    alert('Đã lưu văn bản số hóa OCR vào Workspace cá nhân thành công.');
+  // Ham xu ly khi Giao vien bam Nang cap Goi dich vu
+  const handleSelectPackage = (pkg) => {
+    setCurrentPlan(pkg.code);
+    setAiCredits((prev) => prev + pkg.credits);
+    setUpgradeMessage(
+      `Da kich hoat thanh cong "${pkg.name}"! He thong da cong them +${pkg.credits} Credit AI vao tai khoan cua ban.`
+    );
   };
 
   return (
     <div className="space-y-6">
-      {/* Tiêu đề trang và nút tạo thư mục mới */}
-      <div className="flex items-center justify-between bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      {/* Banner Chao mung & Trang thai Goi VIP */}
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-800">Workspace Cá Nhân & Số Hóa Tài Liệu OCR</h2>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-bold uppercase">
+              To Hoa hoc THPT
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-bold uppercase">
+              Hang thanh vien: {currentPlan}
+            </span>
+          </div>
+          <h1 className="text-2xl font-bold text-slate-800">
+            Khong gian Lam viec Giao vien Hoa hoc (PlanbookAI Portal)
+          </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Lưu trữ tập trung nguồn học liệu Hóa học THPT và chuyển đổi tài liệu giấy sang văn bản số bằng AI OCR
+            Quan ly tien do giang day, truy cap nhanh 6 cong cu AI va quan ly han muc Goi dich vu VIP
           </p>
         </div>
-        <Button onClick={() => setIsFolderModalOpen(true)}>+ Tạo thư mục học liệu</Button>
+
+        <div className="bg-slate-50 px-5 py-3 rounded-xl border border-slate-200 text-right">
+          <div className="text-xs font-bold text-slate-500 uppercase">
+            So du Han muc AI Hien tai
+          </div>
+          <div className="text-2xl font-bold text-indigo-600 mt-0.5">
+            {aiCredits} Credits
+          </div>
+        </div>
       </div>
 
-      {/* KHU VỰC 1: Danh sách các thư mục học liệu cá nhân */}
-      <div>
-        <h3 className="text-base font-bold text-slate-800 mb-3">1. Thư mục học liệu của tôi</h3>
+      {/* Thong bao khi nang cap goi thanh cong */}
+      {upgradeMessage && (
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-sm font-semibold flex items-center justify-between">
+          <span>{upgradeMessage}</span>
+          <button
+            onClick={() => setUpgradeMessage("")}
+            className="text-xs font-bold underline"
+          >
+            [Dong]
+          </button>
+        </div>
+      )}
+
+      {/* 4 The Thong ke Tong quan */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Giao an 5512 Da Soan", value: "14 Giao an", sub: "Khoi 10, 11, 12" },
+          { label: "Ngan hang Cau hoi Ca nhan", value: "185 Cau", sub: "4 Muc do nhan thuc" },
+          { label: "Bo De thi Da Xuat ban", value: "08 Bo de", sub: "32 Ma de da tron" },
+          { label: "Phieu Trac nghiem Da Cham OCR", value: "340 Phieu", sub: "Do chinh xac 99.8%" },
+        ].map((stat, idx) => (
+          <div
+            key={idx}
+            className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"
+          >
+            <div className="text-xs font-bold text-slate-500 uppercase">
+              {stat.label}
+            </div>
+            <div className="text-2xl font-bold text-slate-800 mt-1">
+              {stat.value}
+            </div>
+            <div className="text-xs text-blue-600 font-semibold mt-1">
+              {stat.sub}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Loi tat Truy cap Nhanh 6 Phan he AI cua Giao vien */}
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <h2 className="text-lg font-bold text-slate-800 border-b pb-3">
+          1. Truy cap Nhanh Bo Cong cu AI Giang day Hoa hoc
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {folders.map((folder) => (
-            <div
-              key={folder.id}
-              className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-400 transition"
+          {[
+            {
+              title: "Soan Giao an AI (Wizard 4 Buoc)",
+              desc: "Thiet ke ke hoach bai day chuan Cong van 5512 hoac su dung Mau He thong.",
+              to: "/teacher/lesson-plans",
+              badge: "Cong van 5512",
+            },
+            {
+              title: "Tao Bai tap Hoa hoc Tu dong",
+              desc: "Sinh bai tap tu luan va trac nghiem theo chuyen de kem loi giai chi tiet.",
+              to: "/teacher/exercises",
+              badge: "AI Generator",
+            },
+            {
+              title: "Ngan hang Cau hoi Hoa hoc",
+              desc: "Quan ly kho cau hoi phan loai theo Nhan biet, Thong hieu, Van dung.",
+              to: "/teacher/questions",
+              badge: "Question Bank",
+            },
+            {
+              title: "Thiet ke De thi & Ma tran (Wizard 4 Buoc)",
+              desc: "Tron 4 ma de (101-104), cai mat khau va xuat Ma QR chia se.",
+              to: "/teacher/exams",
+              badge: "Exam Matrix",
+            },
+            {
+              title: "Cham Phieu Trac nghiem OCR",
+              desc: "Quet phieu tra loi hang loat va mo Ban do Soi loi Dap an Xanh/Do.",
+              to: "/teacher/ocr-grading",
+              badge: "AI Vision OCR",
+            },
+            {
+              title: "Phan tich Tien bo Hoc sinh",
+              desc: "Xem bieu do diem so tung hoc sinh va sinh nhan xet ca nhan hoa.",
+              to: "/teacher/analytics",
+              badge: "Student Analytics",
+            },
+          ].map((tool, i) => (
+            <Link
+              key={i}
+              to={tool.to}
+              className="p-4 rounded-xl bg-slate-50 border border-slate-200 hover:border-blue-500 hover:bg-blue-50/40 transition-all flex flex-col justify-between space-y-3"
             >
-              <div className="text-xs font-semibold uppercase text-indigo-600 mb-1">Thư mục lưu trữ</div>
-              <h4 className="font-bold text-slate-800 text-base">{folder.folderName}</h4>
-              <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500">
-                <span>Số lượng: {folder.itemCount} tài liệu</span>
-                <span>Cập nhật: {folder.updatedAt}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* KHU VỰC 2: Công cụ OCR số hóa tài liệu giấy */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-        <h3 className="text-base font-bold text-slate-800 mb-2">
-          2. Công cụ OCR số hóa tài liệu giấy (Sách giáo khoa / Đề cương viết tay)
-        </h3>
-        <p className="text-sm text-slate-500 mb-4">
-          Tải lên hình ảnh chụp trang sách hoặc đề cương giấy để Gemini Vision OCR trích xuất thành văn bản Hóa học
-        </p>
-
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-          <input
-            type="file"
-            accept="image/*,.pdf"
-            onChange={(e) => setSelectedFile(e.target.files[0])}
-            className="block w-full md:w-auto text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-          />
-          <Button onClick={handleDigitizeOcr} disabled={ocrLoading}>
-            Quét OCR số hóa tài liệu
-          </Button>
-        </div>
-
-        {ocrLoading && <LoadingSpinner message="Đang quét ảnh tài liệu giấy bằng Gemini Vision OCR..." />}
-
-        {ocrTextResult && !ocrLoading && (
-          <div className="mt-4 space-y-3">
-            <label className="block text-sm font-semibold text-slate-700">
-              Văn bản trích xuất từ tài liệu giấy (Có thể chỉnh sửa trực tiếp):
-            </label>
-            <textarea
-              rows={7}
-              value={ocrTextResult}
-              onChange={(e) => setOcrTextResult(e.target.value)}
-              className="w-full p-4 border border-slate-300 rounded-lg text-sm font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-            <div className="flex justify-end">
-              <Button variant="success" onClick={handleSaveOcrToWorkspace}>
-                Lưu văn bản vào Workspace
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* KHU VỰC 3: Danh sách các tài liệu đã lưu trong Workspace */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-        <h3 className="text-base font-bold text-slate-800 mb-4">3. Tài liệu gần đây trong Workspace</h3>
-        <div className="divide-y divide-slate-200">
-          {documents.map((doc) => (
-            <div key={doc.id} className="py-3 flex items-center justify-between text-sm">
               <div>
-                <p className="font-semibold text-slate-800">{doc.title}</p>
-                <p className="text-xs text-slate-500 mt-0.5">Thuộc thư mục: {doc.folderName}</p>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="px-2.5 py-1 bg-slate-100 text-slate-700 rounded text-xs font-medium">
-                  {doc.type}
+                <span className="text-[11px] font-bold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-800">
+                  {tool.badge}
                 </span>
-                <span className="text-xs text-slate-400">{doc.createdAt}</span>
+                <h3 className="text-sm font-bold text-slate-800 mt-2">
+                  {tool.title}
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">{tool.desc}</p>
               </div>
-            </div>
+              <span className="text-xs font-bold text-blue-600">
+                Mo cong cu -&gt;
+              </span>
+            </Link>
           ))}
         </div>
       </div>
 
-      {/* Cửa sổ Modal tạo thư mục mới */}
-      <Modal
-        isOpen={isFolderModalOpen}
-        onClose={() => setIsFolderModalOpen(false)}
-        title="Tạo thư mục học liệu mới"
-      >
-        <form onSubmit={handleCreateFolder} className="space-y-4">
+      {/* Khu vuc Quan ly & Nang cap Goi Dich vu VIP (Subscription Manager) */}
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Tên thư mục Hóa học</label>
-            <input
-              type="text"
-              required
-              value={newFolderName}
-              onChange={(e) => setNewFolderName(e.target.value)}
-              placeholder="Ví dụ: Chuyên đề Oxi hóa - Khử Hóa 10"
-              className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm"
-            />
+            <h2 className="text-lg font-bold text-slate-800">
+              2. Quan ly & Nang cap Goi Dich vu VIP (Subscription Packages)
+            </h2>
+            <p className="text-xs text-slate-500">
+              Nang cap goi cuoc de mo khoa Kho Giao an Mau Chuan He thong va tang han muc Credit AI
+            </p>
           </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="secondary" onClick={() => setIsFolderModalOpen(false)}>
-              Hủy
-            </Button>
-            <Button type="submit">Tạo thư mục</Button>
-          </div>
-        </form>
-      </Modal>
+          <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-lg">
+            Goi dang su dung: {currentPlan}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {packages.map((pkg) => {
+            const isCurrent = currentPlan === pkg.code;
+            return (
+              <div
+                key={pkg.code}
+                className={`p-5 rounded-xl border flex flex-col justify-between space-y-4 ${
+                  isCurrent
+                    ? "bg-blue-50/60 border-blue-600 shadow-sm"
+                    : "bg-slate-50 border-slate-200"
+                }`}
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase px-2.5 py-1 rounded bg-slate-200 text-slate-800">
+                      {pkg.code}
+                    </span>
+                    {isCurrent && (
+                      <span className="text-xs font-bold px-2.5 py-1 rounded bg-emerald-100 text-emerald-800">
+                        Dang kich hoat
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900">{pkg.name}</h3>
+                  <div className="text-xl font-bold text-blue-700">{pkg.price}</div>
+                  <ul className="space-y-2 text-xs text-slate-600 pt-2 border-t border-slate-200">
+                    {pkg.features.map((f, idx) => (
+                      <li key={idx}>- {f}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <button
+                  onClick={() => handleSelectPackage(pkg)}
+                  className={`w-full py-2.5 rounded-lg text-xs font-bold transition-all ${
+                    isCurrent
+                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                      : "bg-blue-600 text-white hover:bg-blue-700"
+                  }`}
+                >
+                  {isCurrent
+                    ? `[Gia han them +${pkg.credits} Credits]`
+                    : `[Nang cap len ${pkg.name}]`}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default TeacherWorkspace;
