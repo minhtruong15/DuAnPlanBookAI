@@ -7,47 +7,81 @@ import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import ProtectedRoute from './components/guards/ProtectedRoute';
 
+// Nhập 3 màn hình đầu tiên của Giáo viên Hóa học (Tuần 2 - Thành viên 1)
+import TeacherWorkspace from './pages/teacher/TeacherWorkspace';
+import LessonPlanAI from './pages/teacher/LessonPlanAI';
+import ExerciseCreator from './pages/teacher/ExerciseCreator';
+
 export default function App() {
   return (
-    // Bọc AuthProvider ở ngoài cùng để mọi trang đều lấy được thông tin user
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Nhóm đường dẫn Công khai (Đăng nhập / Đăng ký) nằm trong khung AuthLayout */}
+          {/* Nhóm đường dẫn Công khai (Đăng nhập / Đăng ký) */}
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
           </Route>
 
-          {/* Khu vực của TEACHER: Được bảo vệ bởi ProtectedRoute và bọc trong khung MainPortalLayout */}
+          {/* Khu vực của TEACHER */}
           <Route element={<ProtectedRoute allowedRoles={['TEACHER']} />}>
             <Route element={<MainPortalLayout />}>
-              <Route path="/teacher/*" element={<div className="p-6 bg-white rounded-xl border border-slate-200 font-semibold text-emerald-700">🎉 Khung giao diện Teacher (7 menu bên trái) đã sẵn sàng!</div>} />
+              <Route path="/teacher/workspace" element={<TeacherWorkspace />} />
+              <Route path="/teacher/lesson-plan-ai" element={<LessonPlanAI />} />
+              <Route path="/teacher/exercise-creator" element={<ExerciseCreator />} />
+              <Route
+                path="/teacher/*"
+                element={
+                  <div className="p-6 bg-white rounded-xl border border-slate-200 font-semibold text-slate-700">
+                    Tính năng này của Teacher sẽ được hoàn thiện tiếp ở Tuần 3.
+                  </div>
+                }
+              />
             </Route>
           </Route>
 
           {/* Khu vực của STAFF */}
           <Route element={<ProtectedRoute allowedRoles={['STAFF']} />}>
             <Route element={<MainPortalLayout />}>
-              <Route path="/staff/*" element={<div className="p-6 bg-white rounded-xl border border-slate-200 font-semibold text-blue-700">🎉 Khung giao diện Staff (3 menu bên trái) đã sẵn sàng!</div>} />
+              <Route
+                path="/staff/*"
+                element={
+                  <div className="p-6 bg-white rounded-xl border border-slate-200 font-semibold text-blue-700">
+                    Khung giao diện Staff đã sẵn sàng.
+                  </div>
+                }
+              />
             </Route>
           </Route>
 
           {/* Khu vực của MANAGER */}
           <Route element={<ProtectedRoute allowedRoles={['MANAGER']} />}>
             <Route element={<MainPortalLayout />}>
-              <Route path="/manager/*" element={<div className="p-6 bg-white rounded-xl border border-slate-200 font-semibold text-amber-700">🎉 Khung giao diện Manager (3 menu bên trái) đã sẵn sàng!</div>} />
+              <Route
+                path="/manager/*"
+                element={
+                  <div className="p-6 bg-white rounded-xl border border-slate-200 font-semibold text-amber-700">
+                    Khung giao diện Manager đã sẵn sàng.
+                  </div>
+                }
+              />
             </Route>
           </Route>
 
           {/* Khu vực của ADMIN */}
           <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
             <Route element={<MainPortalLayout />}>
-              <Route path="/admin/*" element={<div className="p-6 bg-white rounded-xl border border-slate-200 font-semibold text-purple-700">🎉 Khung giao diện Admin (4 menu bên trái) đã sẵn sàng!</div>} />
+              <Route
+                path="/admin/*"
+                element={
+                  <div className="p-6 bg-white rounded-xl border border-slate-200 font-semibold text-purple-700">
+                    Khung giao diện Admin đã sẵn sàng.
+                  </div>
+                }
+              />
             </Route>
           </Route>
 
-          {/* Mặc định khi vào trang gốc "/" sẽ chuyển hướng sang "/login" */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
